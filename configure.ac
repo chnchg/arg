@@ -1,5 +1,6 @@
 AC_INIT([arg], [1.0], [cjj@u.washington.edu])
 AC_CONFIG_SRCDIR([arg.cc])
+AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE
 
 AC_PROG_CXX

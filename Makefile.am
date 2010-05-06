@@ -1,4 +1,5 @@
 # arg/Makefile.am
+ACLOCAL_AMFLAGS = -I m4
 CLEANFILES = *~ */*~
 pkginclude_HEADERS = arg.hh val.hh
 
