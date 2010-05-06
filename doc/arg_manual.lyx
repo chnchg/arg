@@ -1,0 +1,2431 @@
+#LyX 1.6.5 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize default
+\spacing single
+\use_hyperref true
+\pdf_author "Chun-Chung Chen"
+\pdf_bookmarks true
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder false
+\pdf_colorlinks false
+\pdf_backref false
+\pdf_pdfusetitle true
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+
+\series bold
+arg
+\series default
+, a C++ command-line parser
+\end_layout
+
+\begin_layout Author
+Chun-Chung Chen <
+\begin_inset CommandInset href
+LatexCommand href
+target "cjj@u.washington.edu"
+type "mailto:"
+
+\end_inset
+
+>
+\end_layout
+
+\begin_layout Address
+\begin_inset CommandInset href
+LatexCommand href
+target "http://ccdw.org/~cjj/prog/arg/"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+A simple example
+\end_layout
+
+\begin_layout Standard
+To use the 
+\series bold
+arg
+\series default
+ parser, you need to: 1.
+ include the header file 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+arg.hh
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ in your program; 2.
+ create a parser object (
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+arg::Parser
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+); 3.
+ add options to the parser object; 4.
+ pass command-line data to the parser object.
+ An example of simple programs using the 
+\series bold
+arg
+\series default
+ parser as follows.
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\small\ttfamily},language={C++}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+#include <arg.hh> // 1.
+\end_layout
+
+\begin_layout Plain Layout
+
+#include <iostream>
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+int main(int argc, char ** argv)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	arg::Parser p; // 2.
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	int n;
+\end_layout
+
+\begin_layout Plain Layout
+
+	p.add_opt('n').stow(n); // 3.
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	p.parse(argc, argv); // 4.
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	std::cout << n << '
+\backslash
+n';
+\end_layout
+
+\begin_layout Plain Layout
+
+	return 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This allows you to pass, on command line, an integer to the variable 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+n
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ in the program.
+\end_layout
+
+\begin_layout Section
+Option properties
+\end_layout
+
+\begin_layout Standard
+All the work required to do is adding various options to the parser.
+ This is accomplished by the 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+add_opt
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ function, which returns the reference to the added option (
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+arg::Option &
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+).
+ We can modify the properties of an option by calling its member functions.
+ All the property modifying member functions of an option will return the
+ reference of the same option which allow us to chain up these function
+ calls.
+ (This chaining of function call is a hack around C++'s lack of named arguments
+ in function calls.)
+\end_layout
+
+\begin_layout Standard
+Each option can have a value string immediately following a short option
+ switch (with or without separating space, 
+\emph on
+e.g.
+\emph default
+, 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+-n10
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ or 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+-n 10
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+) or attached to a long option switch by 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+=
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ character (, 
+\emph on
+e.g.
+\emph default
+, 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+--num=10
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+).
+ Currently supported modifiers are list in Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:Supported-modifiers"
+
+\end_inset
+
+ and described below.
+ 
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Supported modifiers to an 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+Option
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ of the parser.
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:Supported-modifiers"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="10" columns="3">
+<features>
+<column alignment="center" valignment="top" width="0">
+<column alignment="right" valignment="top" width="3.4cm">
+<column alignment="left" valignment="top" width="5cm">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Modifier
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Parameters
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Description
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+stow<T>
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+T &t
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+stow the value to variable 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+t
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+store
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+Value *ptr
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+pass 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+Option
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ a 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+Value
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ object to take the value string
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+optional
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+const string &str
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+value string is optional, defaulting to 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+str
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+set
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+int *var
+\end_layout
+
+\begin_layout Plain Layout
+
+\family typewriter
+int value
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+set 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+*var
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ to 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+value
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ when the option is invoked
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+once
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+int init
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+only allow the 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+*var
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ in 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+set
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ modifier to be set when its value is 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+init
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+call
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+CallBack *func
+\end_layout
+
+\begin_layout Plain Layout
+
+\family typewriter
+void *data
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+call the function 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+*func
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ to process the value string and pass it extra 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+data
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+help
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+const string &text
+\end_layout
+
+\begin_layout Plain Layout
+
+\family typewriter
+const string &var
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+supply a description 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+text
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ for the option and refer to the value string as 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+var
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+help_word
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+const string &var
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+refer to the value string as 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+var
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+show_default
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+bool do_show
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+show the default value in description
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection*
+
+\family typewriter
+template<typename T> Option &stow(T &t);
+\end_layout
+
+\begin_layout Standard
+Stow the value to the variable 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+t
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ when the option is invoked.
+ The type of 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+t
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ need to be streamable, supporting the 
+\begin_inset Quotes eld
+\end_inset
+
+put-to
+\begin_inset Quotes erd
+\end_inset
+
+ and 
+\begin_inset Quotes eld
+\end_inset
+
+get-from
+\begin_inset Quotes erd
+\end_inset
+
+ operators: 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+<<
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ and 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+>>
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection*
+
+\family typewriter
+Option &store(Value *ptr = 0);
+\end_layout
+
+\begin_layout Standard
+Pass a 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+Value
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ object (pointed to by 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+ptr
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+) to the option.
+ The 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+Value
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ object will be deleted when the option is destructed.
+ The 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+Value
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ object is used to process the value string when the option is invoked.
+\end_layout
+
+\begin_layout Subsection*
+
+\family typewriter
+Option &optional(const string &str = "");
+\end_layout
+
+\begin_layout Standard
+Make the value string of the option optional and use 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+str
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ instead when the value string is not supplied with the invocation of the
+ option.
+\end_layout
+
+\begin_layout Subsection*
+
+\family typewriter
+Option &set(int *var, int value = - 1);
+\end_layout
+
+\begin_layout Standard
+Set the integer variable 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+*var
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ to 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+value
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ when the option is invoked.
+\end_layout
+
+\begin_layout Subsection*
+
+\family typewriter
+Option &once(int init = 0);
+\end_layout
+
+\begin_layout Standard
+Allow setting of 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+*var
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ only when its value is 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+init
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+.
+ This can be used to prevent multiple invocations of one option or enforce
+ mutual exclusion between different options.
+\end_layout
+
+\begin_layout Subsection*
+
+\family typewriter
+Option &call(CallBack *func, void *data);
+\end_layout
+
+\begin_layout Standard
+Call the function 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+*func
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ with the value string and 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+data
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ when the option is invoked.
+ The extra parameter 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+data
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ allows one to, for example, relay the callback to a member function of
+ an object.
+\end_layout
+
+\begin_layout Subsection*
+
+\family typewriter
+Option &help(const string &text, const string &var = "");
+\end_layout
+
+\begin_layout Standard
+Attach a description 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+text
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ to the option while referring to its value string as 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+var
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+.
+ This can be used to produce usage information for the program.
+\end_layout
+
+\begin_layout Subsection*
+
+\family typewriter
+Option &help_word(const string &var);
+\end_layout
+
+\begin_layout Standard
+Supply a simple word 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+var
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ describing the value string.
+\end_layout
+
+\begin_layout Subsection*
+
+\family typewriter
+Option &show_default(bool do_show = true);
+\end_layout
+
+\begin_layout Standard
+Show the initial or default value of the variable referred in 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+stow
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ or 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+store
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ modifiers.
+ This will be the value the program assumes when the option is not invoked.
+\end_layout
+
+\begin_layout Section
+Adding help and a complex example
+\end_layout
+
+\begin_layout Standard
+The descriptions supplied by the 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+help
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ or 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+help_word
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ modifiers of 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+Option
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ can be extracted per option by the 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+Option::get_help
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ member function or as a whole by the 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+Parser::get_help
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ method of the parser in the order that options were added.
+ Additional messages can be added to the text returned by 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+Parser::get_help
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ through interlacing the option addition process with the 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+add_help
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ method calls to the parser.
+ One can setup customized mechanism to display the help text when it's desired.
+ However, for simple applications, it should suffice to call 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+Parser::add_opt_help
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ to add a standard help option to the parser.
+ Before the text return by 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+Parser::get_help
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+, the standard help option also prints a header text that can be set by
+ 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+Parser::set_header
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+A example program demonstrates the usage of the standard help option is
+ as follows.
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\small\ttfamily},language={C++},showstringspaces=false"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+#include <arg.hh>
+\end_layout
+
+\begin_layout Plain Layout
+
+#include <iostream>
+\end_layout
+
+\begin_layout Plain Layout
+
+using namespace std;
+\end_layout
+
+\begin_layout Plain Layout
+
+const string version = "1.0";
+\end_layout
+
+\begin_layout Plain Layout
+
+int main(int argc, char ** argv)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	arg::Parser parser;
+\end_layout
+
+\begin_layout Plain Layout
+
+	parser.set_header("arg Testing Program v" + version); 
+\end_layout
+
+\begin_layout Plain Layout
+
+	parser.add_help("");
+\end_layout
+
+\begin_layout Plain Layout
+
+	parser.add_help("available options are:");
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	int n = 10;
+\end_layout
+
+\begin_layout Plain Layout
+
+	parser.add_opt('n', "number").stow(n)
+\end_layout
+
+\begin_layout Plain Layout
+
+		.help("set number of nodes to INT", "INT")
+\end_layout
+
+\begin_layout Plain Layout
+
+		.show_default();
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	string f;
+\end_layout
+
+\begin_layout Plain Layout
+
+	int f_given;
+\end_layout
+
+\begin_layout Plain Layout
+
+	f_given = 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+	parser.add_opt('i', "input").stow(f)
+\end_layout
+
+\begin_layout Plain Layout
+
+		.help("read data from FILE", "FILE")
+\end_layout
+
+\begin_layout Plain Layout
+
+		.set(& f_given).once();
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	parser.add_opt_help();
+\end_layout
+
+\begin_layout Plain Layout
+
+	parser.add_opt_version(version);
+\end_layout
+
+\begin_layout Plain Layout
+
+	// parse command line
+\end_layout
+
+\begin_layout Plain Layout
+
+	try {
+\end_layout
+
+\begin_layout Plain Layout
+
+		parser.parse(argc, argv);
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+	catch (arg::Error e) {
+\end_layout
+
+\begin_layout Plain Layout
+
+		cout << "Error parsing command line: "
+\end_layout
+
+\begin_layout Plain Layout
+
+			 << e.get_msg() << '
+\backslash
+n';
+\end_layout
+
+\begin_layout Plain Layout
+
+		return 1;
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+	// check for parameter consistency
+\end_layout
+
+\begin_layout Plain Layout
+
+	if (! f.size()) {
+\end_layout
+
+\begin_layout Plain Layout
+
+		cout << "Need to specify the input file!
+\backslash
+n";
+\end_layout
+
+\begin_layout Plain Layout
+
+		return 1;
+\end_layout
+
+\begin_layout Plain Layout
+
+	}
+\end_layout
+
+\begin_layout Plain Layout
+
+	// output
+\end_layout
+
+\begin_layout Plain Layout
+
+	cout << "The parameters are:
+\backslash
+n"
+\end_layout
+
+\begin_layout Plain Layout
+
+		<< "number = " << n << '
+\backslash
+n'
+\end_layout
+
+\begin_layout Plain Layout
+
+		<< "input = " << f << '
+\backslash
+n';
+\end_layout
+
+\begin_layout Plain Layout
+
+	return 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Users of the program can invoke the 
+\begin_inset Quotes eld
+\end_inset
+
+-h
+\begin_inset Quotes erd
+\end_inset
+
+ switch to get a list of available options for the program as follows.
+\begin_inset listings
+lstparams "basicstyle={\small\ttfamily},breaklines=true"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+$ ./arg_ex1 -h
+\end_layout
+
+\begin_layout Plain Layout
+
+arg Testing Program v1.0
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+available options are:
+\end_layout
+
+\begin_layout Plain Layout
+
+  -n, --number=INT           set number of nodes to INT (default: 10)
+\end_layout
+
+\begin_layout Plain Layout
+
+  -i, --input=FILE           read data from FILE
+\end_layout
+
+\begin_layout Plain Layout
+
+  -h, --help                 display this help list and exit
+\end_layout
+
+\begin_layout Plain Layout
+
+  -V, --version              print program version and exit
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Another standard option used in the above example is the 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+--version
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ option that can be added to the parser with 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+Parser::add_opt_version
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ method.
+\end_layout
+
+\begin_layout Paragraph*
+Localization
+\end_layout
+
+\begin_layout Standard
+A theme in the design of 
+\series bold
+arg
+\series default
+ is to localize all information related to a command line option.
+ That is demonstrated in the last example where we put codes related to
+ each parameter into a single block.
+ This save one from hunting all over the place when, say, just making change
+ to a single parameter.
+\end_layout
+
+\begin_layout Paragraph*
+Consistency
+\end_layout
+
+\begin_layout Standard
+There is no simple way to provide a general mechanism that can specify and
+ check the consistency for the supplied command-line options that's not
+ itself Turing-complete.
+ The only assistance provide by the 
+\series bold
+arg
+\series default
+ parser are the 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+set
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ modifier that can be used to track, 
+\emph on
+e.g.
+\emph default
+, if an option was invoked and the 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+once
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ modifier that can be used to, say, prevent multiple invocations of an option
+ or enforce mutual exclusion between options.
+\end_layout
+
+\begin_layout Paragraph*
+Exception
+\end_layout
+
+\begin_layout Standard
+All errors occurs in parsing the command-line parameters result in exceptions
+ of the base type 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+arg::Error
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+.
+ The corresponding message can be obtained by the 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+Error::get_msg
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ method of the exception.
+\end_layout
+
+\begin_layout Section
+Callback function
+\end_layout
+
+\begin_layout Standard
+One can specify a callback function to be called upon the invocation of
+ an option and to process the value string if there is any.
+ A callback function 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+func
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ has the signature:
+\begin_inset listings
+lstparams "basicstyle={\small\ttfamily},language={C++}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+bool func(int key, const std::string &vstr, void *data);
+\end_layout
+
+\end_inset
+
+ The arguments passed to the callback are the short option 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+key
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+, the value string 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+vstr
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+, and the extra 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+data
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+.
+ The return value of the callback function is used to indicate if the processing
+ of the option is successful.
+ A 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+false
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ return value of the callback function will result in an 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+OptError
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ exception.
+\end_layout
+
+\begin_layout Standard
+The extra 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+data
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ parameter allows one to parametrize the callback function.
+ For example, if we pass the pointer to an object as the extra 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+data
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\begin_inset listings
+lstparams "basicstyle={\small\ttfamily}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+	Kitchen kitc;
+\end_layout
+
+\begin_layout Plain Layout
+
+	parser.add_opt("vegi").call(& func, & kitc);
+\end_layout
+
+\end_inset
+
+we can setup a callback function that will relays the call to a member function
+ of the object:
+\begin_inset listings
+lstparams "basicstyle={\small\ttfamily}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+bool func(int key, const std::string &vstr, void *data)
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+	Kitchen *k = static_cast<Type *>(data);
+\end_layout
+
+\begin_layout Plain Layout
+
+	return k->cook(vstr);
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+On a side note, if we were not concerned with additional dependency, this
+ callback mechanism should probably have been replaced by making use of
+ signal-and-handler libraries, such as, 
+\begin_inset CommandInset href
+LatexCommand href
+name "libsigc++"
+target "http://libsigc.sourceforge.net/"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Section
+Subparser
+\end_layout
+
+\begin_layout Standard
+Sometimes, the value string of an option represents some suboptions and
+ should be processed by a subparser.
+ The 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+arg::SubParser
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ is both a 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+Parser
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ and a 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+Value
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+.
+ It should be attached to an option of the parser using the 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+Parser::store
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ modifier.
+ As a consequence, we need to allocate the subparser dynamically so that
+ it can be safely deleted by the destructor of the parser.
+ The default separator of the suboptions is the comma 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+,
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ but can be changed with 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+SubParser::set_sep
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ method.
+ For example, with the following code:
+\begin_inset listings
+lstparams "basicstyle={\small\ttfamily},language={C++}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+	Parser p;
+\end_layout
+
+\begin_layout Plain Layout
+
+	SubParser * sp = new SubParser;
+\end_layout
+
+\begin_layout Plain Layout
+
+	int va1 = 0;
+\end_layout
+
+\begin_layout Plain Layout
+
+	sp->add_opt("param1").stow(va1);
+\end_layout
+
+\begin_layout Plain Layout
+
+	double va2 = 1.0;
+\end_layout
+
+\begin_layout Plain Layout
+
+	sp->add_opt("param2").stow(va2);
+\end_layout
+
+\begin_layout Plain Layout
+
+	sp->add_opt_help();
+\end_layout
+
+\begin_layout Plain Layout
+
+	parser.add_opt('o', "options").store(sp);
+\end_layout
+
+\end_inset
+
+We can pass values to va1 and va2 on the command line like:
+\begin_inset listings
+lstparams "basicstyle={\small\ttfamily}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+$ ./arg_ex -o param1=2,param2=0.5
+\end_layout
+
+\end_inset
+
+Or, obtain a list of supported suboptions with:
+\begin_inset listings
+lstparams "basicstyle={\small\ttfamily}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+$ ./arg_ex -o help
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Value class
+\end_layout
+
+\begin_layout Standard
+A 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+Value
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ object is a mechanism to process a value string and store it somewhere,
+ 
+\emph on
+e.g.
+\emph default
+, a variable, as well as to produce a string representation of the stored
+ value.
+ They should be dynamically allocated before passing to the parser and will
+ be deleted by the parser upon destruction.
+ Beside the 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+StreamableValue
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ subclass used by the 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+Option::stow
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ modifier to handle storage to types that support put-to and get-from stream
+ operations (through 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+<<
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ and 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+>>
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ operators), additional value classes are available in 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+val.hh
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+.
+ This currently includes 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+SetValue
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ that represents storage to a choice from a set of names; 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+ListValue
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ that represents storage to separator (defaulting to comma) separated list
+ of values of a given type; and 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+RelValue
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ that can be used to either set or perform relative change to a 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+double
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ type variable.
+\end_layout
+
+\begin_layout Section
+Non-option arguments
+\end_layout
+
+\begin_layout Standard
+Currently, command line arguments that do not start with 
+\begin_inset Quotes eld
+\end_inset
+
+-
+\begin_inset Quotes erd
+\end_inset
+
+ or 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+--
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ and are not value strings of any options are swept into a 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+std::vector<std::string>
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ array that can be access through the member function 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+Parser::args
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+.
+ In the future release of 
+\series bold
+arg
+\series default
+, new mechanism might be built to process them as an ordered list of different
+ variable values.
+\end_layout
+
+\begin_layout Section
+Information
+\end_layout
+
+\begin_layout Standard
+This parser was developed from scratch for my projects of scientific computation.
+ The aim is to minimize the coding efforts of adding command-line parameters
+ to C++ programs.
+ Earlier version of the code was released as part of ccGo under the GPL
+ license.
+ The current standalone version is released under LGPL and can be downloaded
+ from the information page at 
+\begin_inset CommandInset href
+LatexCommand href
+target "http://ccdw.org/~cjj/prog/arg/"
+
+\end_inset
+
+.
+ Please send any comments and bug reports to <
+\begin_inset CommandInset href
+LatexCommand href
+target "cjj@u.washington.edu"
+type "mailto:"
+
+\end_inset
+
+>.
+\end_layout
+
+\end_body
+\end_document

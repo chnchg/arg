@@ -1,0 +1,5 @@
+2010-05-06 Chun-Chung Chen <cjj@u.washington.edu>
+
+	* make standalone: copy arg.cc arg.hh from work5/lib1
+	* val.cc val.hh: separate value extension classes from arg.hh
+	* configure.ac Makefile.am: use autotools
