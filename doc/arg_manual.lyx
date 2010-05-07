@@ -66,7 +66,7 @@ Chun-Chung Chen
 \end_layout
 
 \begin_layout Date
-May 8, 2010
+May 7, 2010
 \end_layout
 
 \begin_layout Address
@@ -2450,7 +2450,7 @@ Information
 
 \begin_layout Standard
 This parser was developed from scratch for some projects in scientific computati
-on.
+on in 2004.
  The aim is to minimize the coding efforts of adding command-line parameters
  to C++ programs.
  Earlier version of the code was released as part of 
@@ -2461,7 +2461,7 @@ target "http://ccdw.org/~cjj/prog/ccgo/"
 
 \end_inset
 
- under the GPL license.
+ since 2005 under the GPL license.
  The current standalone version is released under LGPL and can be downloaded
  from the information page at 
 \begin_inset CommandInset href
