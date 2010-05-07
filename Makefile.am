@@ -1,10 +1,12 @@
 # arg/Makefile.am
 ACLOCAL_AMFLAGS = -I m4
 CLEANFILES = *~ */*~
-pkginclude_HEADERS = arg.hh val.hh
+argincludedir = $(includedir)/arg-1.0
+arginclude_HEADERS = arg.hh val.hh
 
 lib_LTLIBRARIES = libarg.la
 libarg_la_SOURCES = arg.cc val.cc
+libarg_la_LDFLAGS = -version-info 1:0:0
 
 LDADD = libarg.la
 

@@ -47,7 +47,7 @@ namespace arg {
 		Option(int key, const std::string & name);
 		~Option();
 
-
+		// option modifiers
 		template<typename T> Option & stow(T & t); // stow value to streamable variable
 		Option & store(Value * ptr = 0); // store value to "* ptr", the Value will be released by the Option
 		Option & optional(const std::string & str = ""); // value is optional defaulting to "str"

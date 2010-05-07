@@ -1,2 +1,11 @@
-#! /bin/sh
-autoreconf --force --symlink --install
+#!/bin/bash
+RECONF_OPT="--symlink --install --force"
+
+if grep -q ^AC_CONFIG_MACRO_DIR configure.ac; then
+	M4_DIR=`grep -m1 ^AC_CONFIG_MACRO_DIR configure.ac|sed -e 's/.*(\(.\+\)).*/\1/'`
+	M4_DIR=${M4_DIR#[}
+	M4_DIR=${M4_DIR%]}
+	if [ ! -d "${M4_DIR}" ]; then mkdir -p ${M4_DIR}; fi
+fi
+
+autoreconf ${RECONF_OPT} $*

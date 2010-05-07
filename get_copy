@@ -1,0 +1,57 @@
+#!/usr/bin/perl
+
+exit 0 if $#ARGV != 0;
+$file = $ARGV[0];
+
+open FILE, $file;
+
+while (<FILE>) {
+	chop;
+	if (/Copyright/) {
+		$cpr = $_;
+		($pf) = $cpr =~ /^(.*)Copyright/;
+		($ppf) = $pf =~ /^(.*?)\s*$/;
+		while (<FILE>) {
+			chop;
+			last if (substr($_, 0, length($ppf)) ne $ppf);
+			($l) = /^(.*?)\s*$/;
+			if ($l eq $ppf) {
+				if (length($ctx) > 0) {
+					$ctx = $ctx . "\n";
+					$elc = $elc + 1;
+					last if ($elc > 1);
+				}
+			}
+			else {
+				last if (substr($l, 0, length($pf)) ne $pf);
+				$ctx = $ctx . substr($l, length($pf)) . "\n";
+				$elc = 0;
+			}
+		}
+		# print "COPY: [$cpr]\n";
+		@yrs = $cpr =~ /(20\d\d)/g;
+		$yr = $yrs[0];
+		$yr = ($yr . ($yrs[$#yrs] > $yrs[0] + 1 ? "-" : ",") . $yrs[$#yrs]) if ($#yrs > 0);
+		print $pf, "Copyright (C) $yr Chun-Chung Chen <cjj\@u.washington.edu>\n";
+		print $pf, "\n";
+		#$ctx =~ s/(\n*)$/\n/;
+		#$ctx =~ s/\n(.)/\n$pf$1/g;
+		#print "$pf$ctx";
+		$ed = $_;
+		open GPL, "LGPL.txt";
+		while (<GPL>) {
+			chop;
+			s/^\s*//;
+			print $pf, $_, "\n";
+		}
+		close GPL;
+		print $pf, "\n";
+		last;
+	}
+	print $_, "\n";
+}
+
+print "$ed\n";
+while (<FILE>) {
+	print $_;
+}

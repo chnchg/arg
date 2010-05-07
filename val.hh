@@ -1,13 +1,14 @@
 /* val.hh
- * provides additional Value classes:
- *
- *   SetValue:  value represents a choice from a set of names
- *   ListValue: a list of comma-separated values
- *   RelValue:  value of double that can be absolute or relative
  *
  * Copyright (C) 2010 Chun-Chung Chen <cjj@u.washington.edu>
  * 
  */
+
+// This header file provides additional Value classes:
+//
+//   SetValue:  value represents a choice from a set of names
+//   ListValue: a list of comma-separated values
+//   RelValue:  value of double that can be absolute or relative
 
 #ifndef VAL_HH
 #define VAL_HH 1
