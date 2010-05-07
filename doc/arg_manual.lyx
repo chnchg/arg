@@ -19,13 +19,14 @@
 \paperfontsize default
 \spacing single
 \use_hyperref true
+\pdf_title "arg, a C++ command-line parser"
 \pdf_author "Chun-Chung Chen"
 \pdf_bookmarks true
 \pdf_bookmarksnumbered false
 \pdf_bookmarksopen false
 \pdf_bookmarksopenlevel 1
 \pdf_breaklinks false
-\pdf_pdfborder false
+\pdf_pdfborder true
 \pdf_colorlinks false
 \pdf_backref false
 \pdf_pdfusetitle true
@@ -61,7 +62,30 @@ arg
 \end_layout
 
 \begin_layout Author
-Chun-Chung Chen <
+Chun-Chung Chen
+\end_layout
+
+\begin_layout Date
+May 8, 2010
+\end_layout
+
+\begin_layout Address
+Version: 1.0
+\begin_inset Newline newline
+\end_inset
+
+URL: 
+\begin_inset CommandInset href
+LatexCommand href
+target "http://ccdw.org/~cjj/prog/arg/"
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+Copyright 2010 Chun-Chung Chen <
 \begin_inset CommandInset href
 LatexCommand href
 target "cjj@u.washington.edu"
@@ -70,16 +94,6 @@ type "mailto:"
 \end_inset
 
 >
-\end_layout
-
-\begin_layout Address
-\begin_inset CommandInset href
-LatexCommand href
-target "http://ccdw.org/~cjj/prog/arg/"
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Standard
@@ -134,9 +148,6 @@ arg::Parser
 arg
 \series default
  parser as follows.
-\end_layout
-
-\begin_layout Standard
 \begin_inset listings
 lstparams "basicstyle={\small\ttfamily},language={C++}"
 inline false
@@ -217,10 +228,6 @@ n';
 
 \end_inset
 
-
-\end_layout
-
-\begin_layout Standard
 This allows you to pass, on command line, an integer to the variable 
 \begin_inset Quotes eld
 \end_inset
@@ -234,6 +241,46 @@ n
 \end_inset
 
  in the program.
+ This example is included in arg package as 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+arg_ex0.cc
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+.
+ You can compile it with the command:
+\begin_inset listings
+lstparams "basicstyle={\small\ttfamily}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+$ c++ arg_ex0.cc arg.cc -I.
+ -o arg_ex0
+\end_layout
+
+\end_inset
+
+to produce the executable 
+\begin_inset Quotes eld
+\end_inset
+
+
+\family typewriter
+arg_ex0
+\family default
+
+\begin_inset Quotes erd
+\end_inset
+
+ without installing the library.
 \end_layout
 
 \begin_layout Section
@@ -2096,7 +2143,7 @@ Parser::store
 
  modifier.
  As a consequence, we need to allocate the subparser dynamically so that
- it can be safely deleted by the destructor of the parser.
+ it can be safely deleted by the destructor of the option.
  The default separator of the suboptions is the comma 
 \begin_inset Quotes eld
 \end_inset
@@ -2223,8 +2270,8 @@ e.g.
 \emph default
 , a variable, as well as to produce a string representation of the stored
  value.
- They should be dynamically allocated before passing to the parser and will
- be deleted by the parser upon destruction.
+ They should be dynamically allocated before passing to the option and will
+ be deleted by the option upon destruction.
  Beside the 
 \begin_inset Quotes eld
 \end_inset
@@ -2389,7 +2436,7 @@ Parser::args
 \end_inset
 
 .
- In the future release of 
+ In future releases of 
 \series bold
 arg
 \series default
@@ -2402,11 +2449,19 @@ Information
 \end_layout
 
 \begin_layout Standard
-This parser was developed from scratch for my projects of scientific computation.
+This parser was developed from scratch for some projects in scientific computati
+on.
  The aim is to minimize the coding efforts of adding command-line parameters
  to C++ programs.
- Earlier version of the code was released as part of ccGo under the GPL
- license.
+ Earlier version of the code was released as part of 
+\begin_inset CommandInset href
+LatexCommand href
+name "ccGo"
+target "http://ccdw.org/~cjj/prog/ccgo/"
+
+\end_inset
+
+ under the GPL license.
  The current standalone version is released under LGPL and can be downloaded
  from the information page at 
 \begin_inset CommandInset href
