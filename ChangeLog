@@ -1,3 +1,7 @@
+2010-05-07 Chun-Chung Chen <cjj@u.washington.edu>
+
+	* copyright: update copyright notice, switch to LGPL
+
 2010-05-06 Chun-Chung Chen <cjj@u.washington.edu>
 
 	* make standalone: copy arg.cc arg.hh from work5/lib1
