@@ -1,8 +1,11 @@
 # arg/Makefile.am
 ACLOCAL_AMFLAGS = -I m4
 CLEANFILES = *~ */*~
-argincludedir = $(includedir)/arg-1.0
+argincludedir = $(includedir)/$(ARG_MODULE_NAME)
 arginclude_HEADERS = arg.hh val.hh
+
+pkgconfigdir = $(libdir)/pkgconfig
+nodist_pkgconfig_DATA = $(ARG_MODULE_NAME).pc
 
 lib_LTLIBRARIES = libarg.la
 libarg_la_SOURCES = arg.cc val.cc
