@@ -3,6 +3,18 @@
 \begin_document
 \begin_header
 \textclass article
+\begin_preamble
+\usepackage{color}
+\usepackage{textcomp}
+\definecolor{listinggray}{gray}{0.9}
+\definecolor{lbcolor}{rgb}{0.9,0.9,0.9}
+\lstset{
+        showstringspaces=false,
+        keywordstyle=\color[rgb]{0,0,1},
+        commentstyle=\color[rgb]{0.133,0.545,0.133},
+        stringstyle=\color[rgb]{0.627,0.126,0.941},
+}
+\end_preamble
 \use_default_options true
 \language english
 \inputencoding auto
@@ -25,9 +37,9 @@
 \pdf_bookmarksnumbered false
 \pdf_bookmarksopen false
 \pdf_bookmarksopenlevel 1
-\pdf_breaklinks false
+\pdf_breaklinks true
 \pdf_pdfborder true
-\pdf_colorlinks false
+\pdf_colorlinks true
 \pdf_backref false
 \pdf_pdfusetitle true
 \papersize default
@@ -2018,7 +2030,7 @@ data
 
 , 
 \begin_inset listings
-lstparams "basicstyle={\small\ttfamily}"
+lstparams "basicstyle={\small\ttfamily},language={C++}"
 inline false
 status open
 
@@ -2037,7 +2049,7 @@ status open
 we can setup a callback function that will relays the call to a member function
  of the object:
 \begin_inset listings
-lstparams "basicstyle={\small\ttfamily}"
+lstparams "basicstyle={\small\ttfamily},language={C++}"
 inline false
 status open
 
@@ -2053,7 +2065,7 @@ bool func(int key, const std::string &vstr, void *data)
 
 \begin_layout Plain Layout
 
-	Kitchen *k = static_cast<Type *>(data);
+	Kitchen *k = static_cast<Kitchen *>(data);
 \end_layout
 
 \begin_layout Plain Layout
