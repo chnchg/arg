@@ -1,3 +1,7 @@
+2011-06-20 Chun-Chung Chen <cjj@u.washington.edu>
+
+	* arg.cc: remove check before delete
+
 2010-06-09 Chun-Chung Chen <cjj@u.washington.edu>
 
 	* arg.pc.in: provides pkg-config package information

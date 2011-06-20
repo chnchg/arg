@@ -53,9 +53,7 @@ Option::Option(int k, const string & n) :
 
 Option::~Option()
 {
-	if (store_ptr) {
-		delete store_ptr;
-	}
+	delete store_ptr;
 }
 
 Option & Option::store(Value * ptr)
