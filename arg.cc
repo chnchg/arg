@@ -30,7 +30,7 @@ Value::~Value()
 {
 }
 
-void Value::set(const std::string & str)
+void Value::set(const std::string &)
 {
 }
 
@@ -39,7 +39,9 @@ string Value::to_str() const
 	return string();
 }
 
-Option::Option(int k, const string & n) :
+Option::Option(int key, const string & name) :
+	key(key),
+	name(name),
 	store_ptr(0),
 	store_optional(false),
 	set_var(0),
@@ -47,8 +49,6 @@ Option::Option(int k, const string & n) :
 	call_func(0),
 	help_default(false)
 {
-	key = k;
-	name = n;
 }
 
 Option::~Option()
@@ -375,7 +375,7 @@ string Parser::get_help()
 }
 
 namespace { // local callback functions
-	bool help_callback(int key, const string & str, void * data)
+	bool help_callback(int, const string &, void * data)
 	{
 		Parser * p = static_cast<Parser *>(data);
 		cout << p->get_header();
@@ -385,7 +385,7 @@ namespace { // local callback functions
 		exit(0);
 	}
 
-	bool version_callback(int key, const string & str, void * data)
+	bool version_callback(int, const string &, void * data)
 	{
 		string * s = static_cast<string *>(data);
 		cout << * s << '\n';
@@ -455,7 +455,7 @@ string SubParser::get_help()
 }
 
 namespace { // local callback functions
-	bool sub_help_callback(int key, const string & str, void * data)
+	bool sub_help_callback(int, const string &, void * data)
 	{
 		SubParser * p = static_cast<SubParser *>(data);
 		cout << '\n';
