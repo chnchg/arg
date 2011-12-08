@@ -27,7 +27,7 @@
 
 #ifndef VAL_HH
 #define VAL_HH 1
-#include <arg.hh>
+#include "arg.hh"
 #include <vector>
 #include <sstream>
 namespace arg {
