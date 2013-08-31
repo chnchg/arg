@@ -39,6 +39,11 @@ string Value::to_str() const
 	return string();
 }
 
+string Value::get_type() const
+{
+	return "unknown";
+}
+
 Option::Option(int key, const string & name) :
 	key(key),
 	name(name),
@@ -198,9 +203,13 @@ void Option::process(const string & str)
 
 Parser::~Parser()
 {
-	while (opt_list.size())	{
+	while (opt_list.size()) {
 		delete opt_list.back();
 		opt_list.pop_back();
+	}
+	while (val_list.size()) {
+		delete val_list.back();
+		val_list.pop_back();
 	}
 }
 
@@ -293,6 +302,10 @@ void Parser::parse(int argc, char * argv[], bool ignore_unknown)
 				break;
 			}
 		}
+	}
+	if (val_list.size()) {
+		if (val_list.size() != arg_list.size()) throw Error("number of arguments mismatch");
+		for (size_t i = 0; i < val_list.size(); i ++) val_list[i]->set(arg_list[i]);
 	}
 }
 
@@ -408,6 +421,13 @@ Option & Parser::add_opt_version(const string & ver)
 		.help("print program version and exit");
 }
 
+Parser & Parser::store(Value * ptr)
+{
+	if (! ptr) ptr = new Value; // null storage
+	val_list.push_back(ptr);
+	return * this;
+}
+
 SubParser::SubParser() :
 	sep(',')
 {
@@ -506,4 +526,9 @@ ConvError::ConvError(const string & str, const string & type)
 UnknError::UnknError(const string & o)
 {
 	msg = "unknown option: " + o;
+}
+
+MissingError::MissingError(const string & type)
+{
+	msg = "missing an argument of type " + type;
 }

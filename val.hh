@@ -55,6 +55,7 @@ namespace arg {
 
 		void set(const std::string & str);
 		std::string to_str() const;
+		std::string get_type() const;
 
 		// additional access to set
 		int get_value(const std::string & name) const;
@@ -102,6 +103,10 @@ namespace arg {
 			}
 			return o.str();
 		}
+		std::string get_type() const
+		{
+			return std::string("list(") + typeid(T).name() + ")";
+		}
 	};
 
 	// double that can be relative (if it begins with '+' sign)
@@ -114,6 +119,7 @@ namespace arg {
 		RelValue(double & var, bool & is_relative);
 		void set(const std::string & str);
 		std::string to_str() const;
+		std::string get_type() const;
 	};
 }
 #endif // VAL_HH

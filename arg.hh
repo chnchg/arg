@@ -33,6 +33,7 @@ namespace arg {
 		virtual ~Value();
 		virtual void set(const std::string & str); // convert the str to value and put it in storage
 		virtual std::string to_str() const; // convert the value to a string
+		virtual std::string get_type() const;
 	};
 
 	// signature for callback functions
@@ -100,6 +101,7 @@ namespace arg {
 			Option * opt;
 		};
 		std::vector<HelpLine> help_list;
+		std::vector<Value *> val_list; // value list for arguments
 	public:
 		~Parser();
 		void add_help(const std::string & msg);
@@ -123,6 +125,10 @@ namespace arg {
 		// default options
 		Option & add_opt_help();
 		Option & add_opt_version(const std::string & version);
+
+		// positional arguments
+		template<typename T> Parser & stow(T & t); // stow value to streamable variable
+		Parser & store(Value * ptr = 0); // store value to "* ptr", the Value will be released by the Parser
 	};
 
 	class SubParser :
@@ -175,6 +181,12 @@ namespace arg {
 		UnknError(const std::string & opt);
 	};
 
+	class MissingError : // missing argument
+		public Error
+	{
+	public:
+		MissingError(const  std::string & type);
+	};
 	// Templates:
 
 	// value types that have << and >> defined for istream/ostream
@@ -204,10 +216,21 @@ namespace arg {
 			s << ptr;
 			return s.str();
 		}
+
+		std::string get_type() const
+		{
+			return typeid(T).name();
+		}
 	};
 
 	template<typename T>
 	Option & Option::stow(T & t)
+	{
+		return store(new StreamableValue<T>(t));
+	}
+
+	template<typename T>
+	Parser & Parser::stow(T & t)
 	{
 		return store(new StreamableValue<T>(t));
 	}

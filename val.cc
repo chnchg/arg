@@ -100,6 +100,11 @@ string SetValue::to_str() const
 	throw Error("no such value in Set");
 }
 
+string SetValue::get_type() const
+{
+	return "set()";
+}
+
 int SetValue::get_value(const string & name) const
 {
 	for (vector<Element>::const_iterator i = set_list.begin(); i != set_list.end(); i ++) {
@@ -177,4 +182,9 @@ string RelValue::to_str() const
 	if (rel) o << '+';
 	o << v;
 	return o.str();
+}
+
+string RelValue::get_type() const
+{
+	return "relative_double";
 }

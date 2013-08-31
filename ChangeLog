@@ -1,3 +1,8 @@
+2013-08-30 Chun-Chung Chen <cjj@u.washington.edu>
+
+	* arg.cc: primative positional argument processing
+	* val.cc: type string for Value
+
 2011-06-20 Chun-Chung Chen <cjj@u.washington.edu>
 
 	* arg.cc: remove check before delete
