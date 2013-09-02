@@ -1,3 +1,7 @@
+arg 2.0
+
+	* add positional argument processing
+
 arg 1.0 2010-05-07
 
 	* initial release

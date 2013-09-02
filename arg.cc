@@ -201,15 +201,59 @@ void Option::process(const string & str)
 	}
 }
 
+Argument::Argument(const string & name) :
+	name(name),
+	store_ptr(0)
+{
+}
+
+Argument::~Argument()
+{
+	delete store_ptr;
+}
+
+Argument & Argument::store(Value * ptr)
+{
+	if (! ptr) ptr = new Value; // null storage
+	store_ptr = ptr;
+	return * this;
+}
+
+Argument & Argument::help(const string & text)
+{
+	help_text = text;
+	return * this;
+}
+
+const string & Argument::get_name()
+{
+	return name;
+}
+
+std::string Argument::get_help()
+{
+	string h = "    " + name;
+	if (h.size() < 26) h.resize(26, ' ');
+	h += "   ";
+	h += help_text;
+	return h;
+}
+
+void Argument::process(const std::string & str)
+{
+	if (! store_ptr) throw OptError(name, "no place to store '" + str + "'");
+	store_ptr->set(str);
+}
+
 Parser::~Parser()
 {
 	while (opt_list.size()) {
 		delete opt_list.back();
 		opt_list.pop_back();
 	}
-	while (val_list.size()) {
-		delete val_list.back();
-		val_list.pop_back();
+	while (arg_list.size()) {
+		delete arg_list.back();
+		arg_list.pop_back();
 	}
 }
 
@@ -241,16 +285,17 @@ Option & Parser::add_opt(const string & name, bool hide)
 
 vector<string> & Parser::args()
 {
-	return arg_list;
+	return arg_strs;
 }
 
 void Parser::parse(int argc, char * argv[], bool ignore_unknown)
 {
-	arg_list.clear();
+	arg_strs.clear();
+	prog_name = argv[0];
 	for (int i = 1; i < argc; i ++) { // skip program name
 		string s = argv[i];
 		if (s[0] != '-') { // non-option => argument
-			arg_list.push_back(s);
+			arg_strs.push_back(s);
 			continue;
 		}
 		if (s[1] == '-') { // long options
@@ -303,9 +348,9 @@ void Parser::parse(int argc, char * argv[], bool ignore_unknown)
 			}
 		}
 	}
-	if (val_list.size()) {
-		if (val_list.size() != arg_list.size()) throw Error("number of arguments mismatch");
-		for (size_t i = 0; i < val_list.size(); i ++) val_list[i]->set(arg_list[i]);
+	if (arg_list.size()) {
+		if (arg_list.size() != arg_strs.size()) throw Error("number of arguments mismatch");
+		for (size_t i = 0; i < arg_list.size(); i ++) arg_list[i]->process(arg_strs[i]);
 	}
 }
 
@@ -377,12 +422,30 @@ void Parser::remove_all()
 string Parser::get_help()
 {
 	string h;
+	if (arg_list.size()) {
+		h += "Usage: ";
+		h += prog_name + " [Options]";
+		for (vector<Argument *>::iterator i = arg_list.begin(); i != arg_list.end(); i ++) {
+			h += " " + (* i)->get_name();
+		}
+		h += "\n\n";
+	}
+	if (help_list.size()) h += " Valid options are:\n\n";
 	for (vector<HelpLine>::iterator i = help_list.begin(); i != help_list.end(); i ++) {
 		h += i->msg;
 		if (i->opt) {
 			h += i->opt->get_help();
 		}
 		h += '\n';
+	}
+	if (arg_list.size()) {
+		h += "\n Required argument";
+		if (arg_list.size() > 1) h += 's';
+		h += ":\n";
+		for (vector<Argument *>::iterator i = arg_list.begin(); i != arg_list.end(); i ++) {
+			h += '\n' + (* i)->get_help();
+		}
+		h += "\n";
 	}
 	return h;
 }
@@ -421,11 +484,11 @@ Option & Parser::add_opt_version(const string & ver)
 		.help("print program version and exit");
 }
 
-Parser & Parser::store(Value * ptr)
+Argument & Parser::add_arg(string const & name)
 {
-	if (! ptr) ptr = new Value; // null storage
-	val_list.push_back(ptr);
-	return * this;
+	Argument * a = new Argument(name);
+	arg_list.push_back(a);
+	return * a;
 }
 
 SubParser::SubParser() :

@@ -89,19 +89,44 @@ namespace arg {
 		void process(const std::string & str);
 	};
 
+	class Argument
+	{
+		std::string name;
+		Value * store_ptr; // pointer to storage space
+		std::string help_text;
+	public:
+		Argument(std::string const & name);
+		~Argument();
+
+		// option modifiers
+		template<typename T> Argument & stow(T & t); // stow value to streamable variable
+		Argument & store(Value * ptr = 0); // store value to "* ptr", the Value will be released by the Argument
+		Argument & help(const std::string & text); // help text
+
+		const std::string & get_name();
+
+		enum HelpFormat {
+			HF_REGULAR,
+			HF_NODASH
+		};
+		std::string get_help();
+		void process(const std::string & str);
+	};
+
 	class Parser
 	{
 		std::string header_text;
 		std::string version_info;
 	protected:
+		std::string prog_name;
 		std::vector<Option *> opt_list;
-		std::vector<std::string> arg_list;
+		std::vector<Argument *> arg_list;
+		std::vector<std::string> arg_strs;
 		struct HelpLine {
 			std::string msg;
 			Option * opt;
 		};
 		std::vector<HelpLine> help_list;
-		std::vector<Value *> val_list; // value list for arguments
 	public:
 		~Parser();
 		void add_help(const std::string & msg);
@@ -127,8 +152,7 @@ namespace arg {
 		Option & add_opt_version(const std::string & version);
 
 		// positional arguments
-		template<typename T> Parser & stow(T & t); // stow value to streamable variable
-		Parser & store(Value * ptr = 0); // store value to "* ptr", the Value will be released by the Parser
+		Argument & add_arg(std::string const & name);
 	};
 
 	class SubParser :
@@ -230,7 +254,7 @@ namespace arg {
 	}
 
 	template<typename T>
-	Parser & Parser::stow(T & t)
+	Argument & Argument::stow(T & t)
 	{
 		return store(new StreamableValue<T>(t));
 	}

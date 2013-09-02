@@ -1,3 +1,7 @@
+2013-09-01 Chun-Chung Chen <cjj@u.washington.edu>
+
+	* arg.cc: polish up argument processing, add help & usage
+
 2013-08-30 Chun-Chung Chen <cjj@u.washington.edu>
 
 	* arg.cc: primative positional argument processing
