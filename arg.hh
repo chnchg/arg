@@ -48,6 +48,8 @@ namespace arg {
 		bool store_optional; // if value string is optional
 		std::string store_str; // default value string
 
+		bool * set_bool;
+		bool bool_value;
 		int * set_var; // variable to set
 		int set_value; // value to set
 		bool set_once; // if can only set once
@@ -68,6 +70,7 @@ namespace arg {
 		Option & store(Value * ptr = 0); // store value to "* ptr", the Value will be released by the Option
 		Option & optional(const std::string & str = ""); // value is optional defaulting to "str"
 		Option & set(int * var, int value = - 1); // set "* var" to "value"
+		Option & set(bool & var, bool value = true); // set "* var" to "value"
 		Option & once(int init = 0); // can only be set once, with distinct value, "init"
 		Option & call(CallBack * func, void * data); // call function "* func" with "data" as extra argument
 		Option & help(const std::string & text, const std::string & var = ""); // help text

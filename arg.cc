@@ -75,6 +75,13 @@ Option & Option::optional(const string & str)
 	return * this;
 }
 
+Option & Option::set(bool & var, bool value)
+{
+	set_bool = & var;
+	bool_value = value;
+	return * this;
+}
+
 Option & Option::set(int * var, int value)
 {
 	set_var = var;
@@ -178,6 +185,9 @@ void Option::process()
 	if (store_ptr) {
 		if (! store_optional) throw OptError(name, "missing value");
 		store_ptr->set(store_str);
+	}
+	if (set_bool) {
+		* set_bool = bool_value;
 	}
 	if (set_var) {
 		if (set_once && set_init != * set_var) throw OptError(name, "can not re-set");

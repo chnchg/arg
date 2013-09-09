@@ -1,6 +1,7 @@
 2013-09-01 Chun-Chung Chen <cjj@u.washington.edu>
 
 	* arg.cc: polish up argument processing, add help & usage
+	* arg: add set(bool) to Option
 
 2013-08-30 Chun-Chung Chen <cjj@u.washington.edu>
 
