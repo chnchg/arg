@@ -8,6 +8,7 @@ arg_ex0
 arg_ex1
 arg_ex2
 autom4te.cache
+compile
 config.guess
 config.log
 config.status
