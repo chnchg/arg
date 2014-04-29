@@ -49,6 +49,8 @@ Option::Option(int key, const string & name) :
 	name(name),
 	store_ptr(0),
 	store_optional(false),
+	set_bool(0),
+	bool_value(false),
 	set_var(0),
 	set_once(false),
 	call_func(0),
