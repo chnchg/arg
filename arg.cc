@@ -204,6 +204,9 @@ void Option::process(const string & str)
 {
 	if (! store_ptr) throw OptError(name, "unwanted value '" + str + "'");
 	store_ptr->set(str);
+	if (set_bool) {
+		* set_bool = bool_value;
+	}
 	if (set_var) {
 		if (set_once && set_init != * set_var) throw OptError(name, "can not re-set");
 		* set_var = set_value;
