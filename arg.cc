@@ -155,7 +155,7 @@ string Option::get_help(HelpFormat format)
 		if (name != "") h += (s ? ", --" : "  --") + name;
 		if (store_ptr) {
 			if (store_optional) h += "[=" + help_var + "]";
-			else h += "=" + help_var;
+			else h += (name == "" ? " " : "=") + help_var;
 		}
 		if (h.size() < 26) h.resize(26, ' ');
 		h += "   ";
@@ -280,7 +280,7 @@ void Parser::add_help(const string & msg)
 	help_list.push_back(hl);
 }
 
-Option & Parser::add_opt(int key, const string & name, bool hide)
+Option & Parser::add_opt(int key, string const & name, bool hide)
 {
 	Option * o = new Option(key, name);
 	opt_list.push_back(o);
