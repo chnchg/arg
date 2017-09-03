@@ -26,54 +26,52 @@
 using namespace arg;
 using namespace std;
 
+SetValue::Element::Element(std::string const & name, int value, std::string const & help) :
+	name(name),
+	value(value),
+	help(help)
+{}
+
 SetValue::SetValue(int & v) :
 	var(v),
 	help_default(false)
 {
 }
 
-void SetValue::add_help(const string & title)
+void SetValue::add_help(string const & title)
 {
 	help_title = title;
 	help_default = true;
 	add("help", "show this list");
 }
 
-void SetValue::add_help(const string & title, int value)
+void SetValue::add_help(string const & title, int value)
 {
 	help_title = title;
 	help_default = true;
 	add("help", value, "show this list");
 }
 
-void SetValue::add(const string & name, const string & help)
+void SetValue::add(string const & name, string const & help)
 {
 	int value = - 100;
-	for (vector<Element>::iterator i = set_list.begin(); i != set_list.end(); i ++) {
-		if (name == i->name) throw Error("duplicated element in SetValue");
-		if (value >= i->value) value = i->value - 1;
+	for (auto & i: set_list) {
+		if (name == i.name) throw Error("duplicated element in SetValue");
+		if (value >= i.value) value = i.value - 1;
 	}
-	Element e;
-	e.name = name;
-	e.value = value;
-	e.help = help;
-	set_list.push_back(e);
+	set_list.emplace_back(name, value, help);
 }
 
-void SetValue::add(const string & name, int value, const string & help)
+void SetValue::add(string const & name, int value, string const & help)
 {
-	for (vector<Element>::iterator i = set_list.begin(); i != set_list.end(); i ++) {
-		if (name == i->name) throw Error("duplicated element in SetValue");
-		if (value == i->value) throw Error("duplicated value in SetValue");
+	for (auto & i: set_list) {
+		if (name == i.name) throw Error("duplicated element in SetValue");
+		if (value == i.value) throw Error("duplicated value in SetValue");
 	}
-	Element e;
-	e.name = name;
-	e.value = value;
-	e.help = help;
-	set_list.push_back(e);
+	set_list.emplace_back(name, value, help);
 }
 
-void SetValue::set(const string & str)
+void SetValue::set(string const & str)
 {
 	if (help_default && str == "help") { // print help and quit
 		cout << '\n';
@@ -83,9 +81,9 @@ void SetValue::set(const string & str)
 		cout << '\n';
 		exit(0);
 	}
-	for (vector<Element>::iterator i = set_list.begin(); i != set_list.end(); i ++) {
-		if (str == i->name) {
-			var = i->value;
+	for (auto & i: set_list) {
+		if (str == i.name) {
+			var = i.value;
 			return;
 		}
 	}
@@ -94,8 +92,8 @@ void SetValue::set(const string & str)
 
 string SetValue::to_str() const
 {
-	for (vector<Element>::const_iterator i = set_list.begin(); i != set_list.end(); i ++) {
-		if (var == i->value) return i->name;
+	for (auto & i: set_list) {
+		if (var == i.value) return i.name;
 	}
 	throw Error("no such value in Set");
 }
@@ -105,36 +103,36 @@ string SetValue::get_type() const
 	return "set()";
 }
 
-int SetValue::get_value(const string & name) const
+int SetValue::get_value(string const & name) const
 {
-	for (vector<Element>::const_iterator i = set_list.begin(); i != set_list.end(); i ++) {
-		if (name == i->name) return i->value;
+	for (auto & i: set_list) {
+		if (name == i.name) return i.value;
 	}
 	throw Error("element '" + name + "' not found in SetValue");
 }
 
-const string & SetValue::get_name(int value) const
+string const & SetValue::get_name(int value) const
 {
-	for (vector<Element>::const_iterator i = set_list.begin(); i != set_list.end(); i ++) {
-		if (value == i->value) return i->name;
+	for (auto & i: set_list) {
+		if (value == i.value) return i.name;
 	}
 	ostringstream os;
 	os << "value '" << value << "' not found in SetValue";
 	throw Error(os.str());
 }
 
-const string & SetValue::get_help(const string & name) const
+string const & SetValue::get_help(string const & name) const
 {
-	for (vector<Element>::const_iterator i = set_list.begin(); i != set_list.end(); i ++) {
-		if (name == i->name) return i->help;
+	for (auto & i: set_list) {
+		if (name == i.name) return i.help;
 	}
 	throw Error("element '" + name + "' not found in SetValue");
 }
 
-const string & SetValue::get_help(int value) const
+string const & SetValue::get_help(int value) const
 {
-	for (vector<Element>::const_iterator i = set_list.begin(); i != set_list.end(); i ++) {
-		if (value == i->value) return i->help;
+	for (auto & i: set_list) {
+		if (value == i.value) return i.help;
 	}
 	ostringstream os;
 	os << "value '" << value << "' not found in SetValue";
@@ -144,12 +142,83 @@ const string & SetValue::get_help(int value) const
 string SetValue::get_help() const
 {
 	string help;
-	for (vector<Element>::const_iterator i = set_list.begin(); i != set_list.end(); i ++) {
+	for (auto & i: set_list) {
 		string s = "    ";
-		s += i->name;
+		s += i.name;
 		s += ": ";
 		if (s.size() < 16) s.resize(16, ' ');
-		s += i->help;
+		s += i.help;
+		s += '\n';
+		help += s;
+	}
+	return help;
+}
+
+TermValue::TermValue(std::string & v) :
+	var(v),
+	help_default(false)
+{
+}
+
+void TermValue::add_help(string const & title)
+{
+	help_title = title;
+	help_default = true;
+	add("help", "show this list");
+}
+
+void TermValue::add(string const & name, string const & help)
+{
+	for (auto e: term_list) if (name == e.name) throw Error("duplicated element in SetValue");
+	Element e;
+	e.name = name;
+	e.help = help;
+	term_list.push_back(e);
+}
+
+void TermValue::set(string const & str)
+{
+	if (help_default && str == "help") { // print help and quit
+		cout << '\n';
+		cout << help_title << '\n';
+		cout << '\n';
+		cout << get_help();
+		cout << '\n';
+		exit(0);
+	}
+	for (auto e: term_list) if (str == e.name) {
+		var = str;
+		return;
+	}
+	throw ConvError(str, "an element in SetValue");
+}
+
+string TermValue::to_str() const
+{
+	for (auto e: term_list) if (var == e.name) return var;
+	throw Error("no such value in Set");
+}
+
+string TermValue::get_type() const
+{
+	return "term()";
+}
+
+string const & TermValue::get_help(string const & name) const
+{
+	for (auto & e: term_list) if (name == e.name) return e.help;
+	throw Error("element '" + name + "' not found in SetValue");
+}
+
+string TermValue::get_help() const
+{
+	string help;
+	for (auto e: term_list) {
+		string s = "    ";
+		s += e.name;
+		s += ": ";
+		if (s.size() < 16) s.resize(16, ' ');
+		s += e.help;
 		s += '\n';
 		help += s;
 	}
@@ -162,7 +231,7 @@ RelValue::RelValue(double & var, bool & is_relative) :
 {
 }
 
-void RelValue::set(const string & str)
+void RelValue::set(string const & str)
 {
 	istringstream i;
 	if (str[0] == '+') { // relative value

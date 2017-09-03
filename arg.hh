@@ -25,6 +25,7 @@
 #include <string>
 #include <sstream>
 #include <typeinfo>
+#include <memory>
 namespace arg {
 	// proxy to values of command line options, need to know where to store the values
 	class Value
@@ -44,7 +45,7 @@ namespace arg {
 		int key;
 		std::string name;
 
-		Value * store_ptr; // pointer to storage space
+		std::shared_ptr<Value> store_ptr; // pointer to storage space
 		bool store_optional; // if value string is optional
 		std::string store_str; // default value string
 
@@ -67,7 +68,7 @@ namespace arg {
 
 		// option modifiers
 		template<typename T> Option & stow(T & t); // stow value to streamable variable
-		Option & store(Value * ptr = 0); // store value to "* ptr", the Value will be released by the Option
+		Option & store(std::shared_ptr<Value> ptr = 0); // store value to "* ptr", the Value will be released by the Option
 		Option & optional(const std::string & str = ""); // value is optional defaulting to "str"
 		Option & set(int * var, int value = - 1); // set "* var" to "value"
 		Option & set(bool & var, bool value = true); // set "* var" to "value"
@@ -95,7 +96,7 @@ namespace arg {
 	class Argument
 	{
 		std::string name;
-		Value * store_ptr; // pointer to storage space
+		std::shared_ptr<Value> store_ptr; // pointer to storage space
 		std::string help_text;
 	public:
 		Argument(std::string const & name);
@@ -103,8 +104,8 @@ namespace arg {
 
 		// option modifiers
 		template<typename T> Argument & stow(T & t); // stow value to streamable variable
-		Argument & store(Value * ptr = 0); // store value to "* ptr", the Value will be released by the Argument
-		Argument & help(const std::string & text); // help text
+		Argument & store(std::shared_ptr<Value> ptr = 0); // store value to "* ptr", the Value will be released by the Argument
+		Argument & help(std::string const & text); // help text
 
 		const std::string & get_name();
 
@@ -122,12 +123,13 @@ namespace arg {
 		std::string version_info;
 	protected:
 		std::string prog_name;
-		std::vector<Option *> opt_list;
-		std::vector<Argument *> arg_list;
+		std::vector<std::shared_ptr<Option>> opt_list;
+		std::vector<std::shared_ptr<Argument>> arg_list;
 		std::vector<std::string> arg_strs;
 		struct HelpLine {
 			std::string msg;
-			Option * opt;
+			std::shared_ptr<Option> opt;
+			HelpLine(std::string const & m, std::shared_ptr<Option> o);
 		};
 		std::vector<HelpLine> help_list;
 	public:
@@ -141,8 +143,8 @@ namespace arg {
 		const std::string & get_header() const;
 
 		// find existing options
-		Option * find(int key);
-		Option * find(const std::string & name);
+		std::shared_ptr<Option> find(int key);
+		std::shared_ptr<Option> find(const std::string & name);
 
 		// removing options
 		void remove(int key);
@@ -253,13 +255,13 @@ namespace arg {
 	template<typename T>
 	Option & Option::stow(T & t)
 	{
-		return store(new StreamableValue<T>(t));
+		return store(std::make_shared<StreamableValue<T>>(t));
 	}
 
 	template<typename T>
 	Argument & Argument::stow(T & t)
 	{
-		return store(new StreamableValue<T>(t));
+		return store(std::make_shared<StreamableValue<T>>(t));
 	}
 }
 #endif // ARG_HH

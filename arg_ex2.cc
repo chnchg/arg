@@ -3,7 +3,7 @@ using namespace arg;
 int main(int argc, char **argv)
 {
 	Parser p;
-	SubParser * sp = new SubParser;
+	auto sp = std::make_shared<SubParser>();
 	int va1 = 0;
 	sp->add_opt("param1").stow(va1)
 		.help("parameter 1")

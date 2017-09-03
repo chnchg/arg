@@ -5,7 +5,7 @@ int main(int argc, char ** argv)
 {
 	arg::Parser p;
 	int n;
-	p.add_opt('n').stow(n);
+	p.add_opt('n').stow(n = -1);
 	p.parse(argc, argv);
 	std::cout << n << '\n';
 	return 0;

@@ -44,24 +44,51 @@ namespace arg {
 			std::string name;
 			int value;
 			std::string help;
+			Element(std::string const & name, int value, std::string const & help);
 		};
 		std::vector<Element> set_list;
 	public:
 		SetValue(int & var);
-		void add_help(const std::string & title = "Available values:");
-		void add_help(const std::string & title, int value);
-		void add(const std::string & name, const std::string & help = "");
-		void add(const std::string & name, int value, const std::string & help = "");
+		void add_help(std::string const & title = "Available values:");
+		void add_help(std::string const & title, int value);
+		void add(std::string const & name, std::string const & help = "");
+		void add(std::string const & name, int value, std::string const & help = "");
 
-		void set(const std::string & str);
+		void set(std::string const & str);
 		std::string to_str() const;
 		std::string get_type() const;
 
 		// additional access to set
-		int get_value(const std::string & name) const;
-		const std::string & get_name(int value) const;
-		const std::string & get_help(const std::string & name) const;
-		const std::string & get_help(int value) const;
+		int get_value(std::string const & name) const;
+		std::string const & get_name(int value) const;
+		std::string const & get_help(std::string const & name) const;
+		std::string const & get_help(int value) const;
+		std::string get_help() const;
+	};
+
+	// Set of terms in strings
+	class TermValue :
+		public Value
+	{
+		std::string & var;
+		std::string help_title;
+		bool help_default;
+		struct Element {
+			std::string name;
+			std::string help;
+		};
+		std::vector<Element> term_list;
+	public:
+		TermValue(std::string & var);
+		void add_help(std::string const & title = "Available values:");
+		void add(std::string const & name, std::string const & help = "");
+
+		void set(std::string const & str) override;
+		std::string to_str() const override;
+		std::string get_type() const override;
+
+		// additional access to set
+		std::string const & get_help(std::string const & name) const;
 		std::string get_help() const;
 	};
 
@@ -79,7 +106,7 @@ namespace arg {
 		{
 		}
 
-		void set(const std::string & str)
+		void set(std::string const & str)
 		{
 			plist.clear();
 			std::string::size_type n = 0;
@@ -97,12 +124,14 @@ namespace arg {
 		std::string to_str() const
 		{
 			std::ostringstream o;
-			for (typename std::vector<T>::const_iterator i = plist.begin(); i != plist.end(); i ++) {
-				if (i != plist.begin()) o << sep;
-				o << * i;
+			std::string s;
+			for (auto & i: plist) {
+				o << s << i;
+				s = sep;
 			}
 			return o.str();
 		}
+
 		std::string get_type() const
 		{
 			return std::string("list(") + typeid(T).name() + ")";
@@ -117,7 +146,7 @@ namespace arg {
 		bool & rel;
 	public:
 		RelValue(double & var, bool & is_relative);
-		void set(const std::string & str);
+		void set(std::string const & str);
 		std::string to_str() const;
 		std::string get_type() const;
 	};

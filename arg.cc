@@ -21,18 +21,15 @@
 
 #include "arg.hh"
 #include <iostream>
+#include <algorithm>
 #include <cstdlib>
 
 using namespace arg;
 using namespace std;
 
-Value::~Value()
-{
-}
+Value::~Value() {}
 
-void Value::set(const std::string &)
-{
-}
+void Value::set(const std::string &) {}
 
 string Value::to_str() const
 {
@@ -47,25 +44,20 @@ string Value::get_type() const
 Option::Option(int key, const string & name) :
 	key(key),
 	name(name),
-	store_ptr(0),
 	store_optional(false),
-	set_bool(0),
+	set_bool(nullptr),
 	bool_value(false),
-	set_var(0),
+	set_var(nullptr),
 	set_once(false),
-	call_func(0),
+	call_func(nullptr),
 	help_default(false)
-{
-}
+{}
 
-Option::~Option()
-{
-	delete store_ptr;
-}
+Option::~Option() {}
 
-Option & Option::store(Value * ptr)
+Option & Option::store(std::shared_ptr<Value> ptr)
 {
-	if (! ptr) ptr = new Value; // null storage
+	if (! ptr) ptr = std::make_shared<Value>(); // null storage
 	store_ptr = ptr;
 	return * this;
 }
@@ -126,7 +118,7 @@ Option & Option::show_default(bool do_show)
 
 bool Option::take_value()
 {
-	return store_ptr;
+	return bool(store_ptr);
 }
 
 bool Option::need_value()
@@ -166,8 +158,14 @@ string Option::get_help(HelpFormat format)
 		if (s) h += char(key);
 		if (name != "") h += (s ? ", " : "") + name;
 		if (store_ptr) {
-			if (store_optional) h += "[=" + help_var + "]";
-			else h += "=" + help_var;
+			if (name == "") {
+				if (store_optional) h += " [" + help_var + "]";
+				else h += " " + help_var;
+			}
+			else {
+				if (store_optional) h += "[=" + help_var + "]";
+				else h += "=" + help_var;
+			}
 		}
 		if (h.size() < 26) h.resize(26, ' ');
 		h += "   ";
@@ -217,20 +215,14 @@ void Option::process(const string & str)
 }
 
 Argument::Argument(const string & name) :
-	name(name),
-	store_ptr(0)
-{
-}
+	name(name)
+{}
 
-Argument::~Argument()
-{
-	delete store_ptr;
-}
+Argument::~Argument() {}
 
-Argument & Argument::store(Value * ptr)
+Argument & Argument::store(std::shared_ptr<Value> ptr)
 {
-	if (! ptr) ptr = new Value; // null storage
-	store_ptr = ptr;
+	store_ptr = ptr ? ptr : std::make_shared<Value>();
 	return * this;
 }
 
@@ -254,42 +246,29 @@ std::string Argument::get_help()
 	return h;
 }
 
-void Argument::process(const std::string & str)
+void Argument::process(std::string const & str)
 {
 	if (! store_ptr) throw OptError(name, "no place to store '" + str + "'");
 	store_ptr->set(str);
 }
 
-Parser::~Parser()
-{
-	while (opt_list.size()) {
-		delete opt_list.back();
-		opt_list.pop_back();
-	}
-	while (arg_list.size()) {
-		delete arg_list.back();
-		arg_list.pop_back();
-	}
-}
+Parser::HelpLine::HelpLine(std::string const & m, std::shared_ptr<Option> o) :
+	msg(m),
+	opt(o)
+{}
 
-void Parser::add_help(const string & msg)
+Parser::~Parser() {}
+
+void Parser::add_help(string const & msg)
 {
-	HelpLine hl;
-	hl.msg = msg;
-	hl.opt = 0;
-	help_list.push_back(hl);
+	help_list.emplace_back(msg, nullptr);
 }
 
 Option & Parser::add_opt(int key, string const & name, bool hide)
 {
-	Option * o = new Option(key, name);
+	auto o = std::make_shared<Option>(key, name);
 	opt_list.push_back(o);
-	if (! hide) {
-		HelpLine hl;
-		hl.msg = "";
-		hl.opt = o;
-		help_list.push_back(hl);
-	}
+	if (! hide) help_list.emplace_back("", o);
 	return * o;
 }
 
@@ -326,20 +305,17 @@ void Parser::parse(int argc, char * argv[], bool ignore_unknown)
 				n = s.substr(2);
 			}
 			// find option from list
-			bool unknown = true;
-			for (vector<Option *>::iterator j = opt_list.begin(); j != opt_list.end(); j ++) if ((* j)->get_name() == n) {
-				unknown = false;
-				if (vp) (* j)->process(v);
-				else (* j)->process();
-				break;
+			auto j = std::find_if(opt_list.begin(), opt_list.end(), [&n](std::shared_ptr<Option> x){return x->get_name() == n;});
+			if (j != opt_list.end()) {
+				if (vp) (*j)->process(v);
+				else (*j)->process(v);
 			}
-			if (unknown && ! ignore_unknown) throw UnknError(n);
+			else if (! ignore_unknown) throw UnknError(n);
 			continue;
 		}
 		// short options
 		for (string::size_type k = 1; k < s.length(); k ++) { // there can be several options in a token
-			vector<Option *>::iterator j;
-			for (j = opt_list.begin(); j != opt_list.end(); j ++) if ((* j)->get_key() == s[k]) break;
+			auto j = std::find_if(opt_list.begin(), opt_list.end(), [&s,k](shared_ptr<Option> x){return x->get_key() == s[k];});
 			if (j == opt_list.end()) {
 				if (! ignore_unknown) throw UnknError(string("-") + s[k]);
 				break; // for unknown option ignore the rest of the token
@@ -379,59 +355,46 @@ const string & Parser::get_header() const
 	return header_text;
 }
 
-Option * Parser::find(int key)
+std::shared_ptr<Option> Parser::find(int key)
 {
-	for (vector<Option *>::iterator j = opt_list.begin(); j != opt_list.end(); j ++) if ((* j)->get_key() == key) {
-		return * j;
-	}
-	return 0;
+	for (auto j: opt_list) if (j->get_key() == key) return j;
+	return nullptr;
 }
 
-Option * Parser::find(const std::string & name)
+std::shared_ptr<Option> Parser::find(const std::string & name)
 {
-	for (vector<Option *>::iterator j = opt_list.begin(); j != opt_list.end(); j ++) if ((* j)->get_name() == name) {
-		return * j;
-	}
-	return 0;
+	for (auto j: opt_list) if (j->get_name() == name) return j;
+	return nullptr;
 }
 
 void Parser::remove(int key)
 {
 	// erase help first (have to leave the extra help lines.)
-	for (vector<HelpLine>::iterator i = help_list.begin(); i != help_list.end(); i ++) if (i->opt && i->opt->get_key() == key) {
-		help_list.erase(i);
-		break;
-	}
+	help_list.erase(std::remove_if(help_list.begin(), help_list.end(), [key](HelpLine & h){
+		return h.opt && h.opt->get_key() == key;
+	}), help_list.end());
 	// erase the option itself
-	for (vector<Option *>::iterator j = opt_list.begin(); j != opt_list.end(); j ++) if ((* j)->get_key() == key) {
-		delete * j;
-		opt_list.erase(j);
-		break;
-	}
+	opt_list.erase(std::remove_if(opt_list.begin(), opt_list.end(), [key](std::shared_ptr<Option> x){
+		return x->get_key() == key;
+	}), opt_list.end());
 }
 
 void Parser::remove(const std::string & name)
 {
 	// erase help first (have to leave the extra help lines.)
-	for (vector<HelpLine>::iterator i = help_list.begin(); i != help_list.end(); i ++) if (i->opt && i->opt->get_name() == name) {
-		help_list.erase(i);
-		break;
-	}
+	help_list.erase(std::remove_if(help_list.begin(), help_list.end(), [&](HelpLine & l){
+		return l.opt && l.opt->get_name() == name;
+	}), help_list.end());
 	// erase the option itself
-	for (vector<Option *>::iterator j = opt_list.begin(); j != opt_list.end(); j ++) if ((* j)->get_name() == name) {
-		delete * j;
-		opt_list.erase(j);
-		break;
-	}
+	opt_list.erase(std::remove_if(opt_list.begin(), opt_list.end(), [&](std::shared_ptr<Option> x){
+		return x->get_name() == name;
+	}), opt_list.end());
 }
 
 void Parser::remove_all()
 {
 	help_list.clear();
-	while (opt_list.size()) {
-		delete opt_list.back();
-		opt_list.pop_back();
-	}
+	opt_list.clear();
 }
 
 string Parser::get_help()
@@ -440,13 +403,13 @@ string Parser::get_help()
 	if (arg_list.size()) {
 		h += "Usage: ";
 		h += prog_name + " [Options]";
-		for (vector<Argument *>::iterator i = arg_list.begin(); i != arg_list.end(); i ++) {
+		for (auto i = arg_list.begin(); i != arg_list.end(); i ++) {
 			h += " " + (* i)->get_name();
 		}
 		h += "\n\n";
 	}
 	if (help_list.size()) h += " Valid options are:\n\n";
-	for (vector<HelpLine>::iterator i = help_list.begin(); i != help_list.end(); i ++) {
+	for (auto i = help_list.begin(); i != help_list.end(); i ++) {
 		h += i->msg;
 		if (i->opt) {
 			h += i->opt->get_help();
@@ -457,7 +420,7 @@ string Parser::get_help()
 		h += "\n Required argument";
 		if (arg_list.size() > 1) h += 's';
 		h += ":\n";
-		for (vector<Argument *>::iterator i = arg_list.begin(); i != arg_list.end(); i ++) {
+		for (auto i = arg_list.begin(); i != arg_list.end(); i ++) {
 			h += '\n' + (* i)->get_help();
 		}
 		h += "\n";
@@ -501,9 +464,8 @@ Option & Parser::add_opt_version(const string & ver)
 
 Argument & Parser::add_arg(string const & name)
 {
-	Argument * a = new Argument(name);
-	arg_list.push_back(a);
-	return * a;
+	arg_list.emplace_back(std::make_shared<Argument>(name));
+	return * arg_list.back();
 }
 
 SubParser::SubParser() :
@@ -522,12 +484,12 @@ void SubParser::set(const string & str)
 		if (k + 1 == str.length() || str[k + 1] == sep) {
 			if (n == string::npos) n = k + 1;
 			name = str.substr(s, n - s);
-			vector<Option *>::iterator j = opt_list.begin();
-			while (true) {
-				if (j == opt_list.end()) throw UnknError(name);
-				if ((* j)->get_name() == name) break;
-				j ++;
-			}
+
+			auto j = std::find_if(opt_list.begin(), opt_list.end(), [name](std::shared_ptr<Option> x){
+				return x->get_name() == name;
+			});
+			if (j == opt_list.end()) throw UnknError(name);
+
 			if (n < k + 1) {
 				value = str.substr(n + 1, k - n);
 				(* j)->process(value);
@@ -542,11 +504,9 @@ void SubParser::set(const string & str)
 string SubParser::get_help()
 {
 	string h;
-	for (vector<HelpLine>::iterator i = help_list.begin(); i != help_list.end(); i ++) {
-		h += i->msg;
-		if (i->opt) {
-			h += i->opt->get_help(Option::HF_NODASH);
-		}
+	for (auto & i: help_list) {
+		h += i.msg;
+		if (i.opt) h += i.opt->get_help(Option::HF_NODASH);
 		h += '\n';
 	}
 	return h;
@@ -570,11 +530,9 @@ Option & SubParser::add_opt_help()
 		.help("display this help list and exit");
 }
 
-Error::Error()
-{
-}
+Error::Error() {}
 
-Error::Error(const string & m)
+Error::Error(string const & m)
 {
 	msg = m;
 }
@@ -584,29 +542,29 @@ string Error::get_msg()
 	return msg;
 }
 
-OptError::OptError(const string & o)
+OptError::OptError(string const & o)
 {
 	opt = o;
 	msg = "error processing option: " + opt;
 }
 
-OptError::OptError(const string & o, const string & m)
+OptError::OptError(string const & o, string const & m)
 {
 	opt = o;
 	msg = m + " for option: " + o;
 }
 
-ConvError::ConvError(const string & str, const string & type)
+ConvError::ConvError(string const & str, string const & type)
 {
 	msg = "error converting '" + str + "' to " + type;
 }
 
-UnknError::UnknError(const string & o)
+UnknError::UnknError(string const & o)
 {
 	msg = "unknown option: " + o;
 }
 
-MissingError::MissingError(const string & type)
+MissingError::MissingError(string const & type)
 {
 	msg = "missing an argument of type " + type;
 }
