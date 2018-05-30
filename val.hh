@@ -1,6 +1,6 @@
 /* val.hh
  *
- * Copyright (C) 2010,2017 Chun-Chung Chen <cjj@u.washington.edu>
+ * Copyright (C) 2010,2018 Chun-Chung Chen <cjj@u.washington.edu>
  * 
  * This file is part of arg.
  * 
@@ -25,8 +25,7 @@
 //   ListValue: a list of comma-separated values
 //   RelValue:  value of double that can be absolute or relative
 
-#ifndef VAL_HH
-#define VAL_HH 1
+#pragma once
 #include "arg.hh"
 #include <vector>
 #include <sstream>
@@ -151,4 +150,3 @@ namespace arg {
 		std::string get_type() const;
 	};
 }
-#endif // VAL_HH

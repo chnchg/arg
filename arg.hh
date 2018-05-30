@@ -1,6 +1,6 @@
 /* arg.hh
  *
- * Copyright (C) 2010,2017 Chun-Chung Chen <cjj@u.washington.edu>
+ * Copyright (C) 2010,2018 Chun-Chung Chen <cjj@u.washington.edu>
  * 
  * This file is part of arg.
  * 
@@ -18,65 +18,69 @@
  * License along with arg.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
-
-#ifndef ARG_HH
-#define ARG_HH 1
+///\file header file for arg library
+#pragma once
 #include <vector>
 #include <string>
 #include <sstream>
 #include <typeinfo>
 #include <memory>
+/// Base namespace for the library
 namespace arg {
-	// proxy to values of command line options, need to know where to store the values
+	/// proxy to values of command line options, need to know where to store the values
 	class Value
 	{
 	public:
 		virtual ~Value();
-		virtual void set(const std::string & str); // convert the str to value and put it in storage
-		virtual std::string to_str() const; // convert the value to a string
-		virtual std::string get_type() const;
+		virtual void set(const std::string & str); ///<convert the str to value and put it in storage
+		virtual std::string to_str() const; ///<convert the value to a string
+		virtual std::string get_type() const; ///<type name of the value
 	};
 
-	// signature for callback functions
+	/// signature for callback functions
 	typedef bool (CallBack)(int, const std::string & , void *);
 
+	/// options to be parsed
 	class Option
 	{
 		int key;
 		std::string name;
 
-		std::shared_ptr<Value> store_ptr; // pointer to storage space
-		bool store_optional; // if value string is optional
-		std::string store_str; // default value string
+		std::shared_ptr<Value> store_ptr; ///<pointer to storage space
+		bool store_optional; ///<if value string is optional
+		std::string store_str; ///<default value string
 
 		bool * set_bool;
 		bool bool_value;
-		int * set_var; // variable to set
-		int set_value; // value to set
-		bool set_once; // if can only set once
-		int set_init; // initial value, 
+		int * set_var; ///<variable to set
+		int set_value; ///<value to set
+		bool set_once; ///<if can only set once
+		int set_init; ///<initial value, 
 
-		CallBack * call_func; // callback function
-		void * call_data; // data to pass to callback function
+		CallBack * call_func; ///<callback function
+		void * call_data; ///<data to pass to callback function
 
 		std::string help_text;
 		std::string help_var;
-		bool help_default; // whether to show default value of store
+		bool help_default; ///<whether to show default value of store
 	public:
-		Option(int key, const std::string & name);
+		Option(
+			int key, ///< unique single character key for the option
+			const std::string & name ///<name for the option
+		);
 		~Option();
 
 		// option modifiers
-		template<typename T> Option & stow(T & t); // stow value to streamable variable
-		Option & store(std::shared_ptr<Value> ptr = 0); // store value to "* ptr", the Value will be released by the Option
-		Option & optional(const std::string & str = ""); // value is optional defaulting to "str"
-		Option & set(int * var, int value = - 1); // set "* var" to "value"
-		Option & set(bool & var, bool value = true); // set "* var" to "value"
-		Option & once(int init = 0); // can only be set once, with distinct value, "init"
-		Option & call(CallBack * func, void * data); // call function "* func" with "data" as extra argument
-		Option & help(const std::string & text, const std::string & var = ""); // help text
-		Option & help_word(const std::string & var);
-		Option & show_default(bool do_show = true);
+		template<typename T> Option & stow(T & t); ///<stow value to streamable variable
+		Option & store(std::shared_ptr<Value> ptr = 0); ///<store value to "* ptr", the Value will be released by the Option
+		Option & optional(const std::string & str = ""); ///<value is optional defaulting to "str"
+		Option & set(int * var, int value = - 1); ///<set "* var" to "value"
+		Option & set(bool & var, bool value = true); ///<set "* var" to "value"
+		Option & once(int init = 0); ///<can only be set once, with distinct value, "init"
+		Option & call(CallBack * func, void * data); ///<call function "* func" with "data" as extra argument
+		Option & help(const std::string & text, const std::string & var = ""); ///<help text
+		Option & help_word(const std::string & var); ///<help word
+		Option & show_default(bool do_show = true); ///<show default value in help
 
 		bool take_value();
 		bool need_value();
@@ -93,19 +97,22 @@ namespace arg {
 		void process(const std::string & str);
 	};
 
+	/// Positional arguments on command line
 	class Argument
 	{
 		std::string name;
-		std::shared_ptr<Value> store_ptr; // pointer to storage space
+		std::shared_ptr<Value> store_ptr; ///<pointer to storage space
 		std::string help_text;
 	public:
-		Argument(std::string const & name);
+		Argument(
+			std::string const & name ///<name for the argument
+		);
 		~Argument();
 
 		// option modifiers
-		template<typename T> Argument & stow(T & t); // stow value to streamable variable
-		Argument & store(std::shared_ptr<Value> ptr = 0); // store value to "* ptr", the Value will be released by the Argument
-		Argument & help(std::string const & text); // help text
+		template<typename T> Argument & stow(T & t); ///<stow value to streamable variable
+		Argument & store(std::shared_ptr<Value> ptr = 0); ///<store value to "* ptr", the Value will be released by the Argument
+		Argument & help(std::string const & text); ///<help text
 
 		const std::string & get_name();
 
@@ -117,12 +124,13 @@ namespace arg {
 		void process(const std::string & str);
 	};
 
+	/// The command-line parser
 	class Parser
 	{
 		std::string header_text;
 		std::string version_info;
 	protected:
-		std::string prog_name;
+		std::string prog_name; ///<name to identify the program
 		std::vector<std::shared_ptr<Option>> opt_list;
 		std::vector<std::shared_ptr<Argument>> arg_list;
 		std::vector<std::string> arg_strs;
@@ -134,8 +142,8 @@ namespace arg {
 		std::vector<HelpLine> help_list;
 	public:
 		~Parser();
-		void add_help(const std::string & msg);
-		Option & add_opt(int key, const std::string & name = "", bool hide = false);
+		void add_help(const std::string & msg); ///<add additional help text between option helps
+		Option & add_opt(int key, const std::string & name = "", bool hide = false); ///<add an Option
 		Option & add_opt(const std::string & name, bool hide = false);
 		std::vector<std::string> & args();
 		void parse(int argc, char * argv[], bool ignore_unknown = false);
@@ -264,4 +272,3 @@ namespace arg {
 		return store(std::make_shared<StreamableValue<T>>(t));
 	}
 }
-#endif // ARG_HH
