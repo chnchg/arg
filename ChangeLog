@@ -1,3 +1,13 @@
+2018-05-31 Chun-Chung Chen <cjj@u.washington.edu>
+
+	* use doxygen to generate reference manual
+
+
+2017-09-04 Chun-Chung Chen <cjj@u.washington.edu>
+
+	* update implementation to require C++11
+	* drop '=' from short command
+
 2013-09-01 Chun-Chung Chen <cjj@u.washington.edu>
 
 	* arg.cc: polish up argument processing, add help & usage

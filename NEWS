@@ -1,6 +1,8 @@
-arg 2.0
+arg 1.2 2018-06-01
 
 	* add positional argument processing
+	* update implementation to require C++11
+	* doxygen generated reference manual
 
 arg 1.0 2010-05-07
 

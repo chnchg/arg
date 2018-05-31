@@ -1,4 +1,4 @@
-arg-1.0
+arg-1.2
 
 For simple applications, you just need to copy `arg.cc' and `arg.hh' to your
 program directory, then, compile your program with something like:
@@ -20,4 +20,4 @@ For more details, please see the file `INSTALL'.
 Homepage URL of arg is http://ccdw.org/~cjj/prog/arg/ where you can
 also find all the documentation.
 
-Chun-Chung Chen 2010
+Chun-Chung Chen 2018

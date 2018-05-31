@@ -40,9 +40,11 @@ Please see https://ccdw.org/~cjj/prog/arg/ for more information.
 
 \namespace arg Base namespace for the library
 
-\file arg.hh header file for arg library
+\file arg.hh \brief Header file for arg library
+\details This is file declares `arg::Parser` and is necessary to include for using the libraray.
 
-\file val.hh header file providing additional Value classes 
+\file val.hh \brief header file providing additional `arg::Value` classes 
+\details This optional include declares subclasses of `arg::Value`: `arg::SetValue`, `arg::TermValue`, `arg::ListValue`, and `arg::RelValue`.
 
 \example arg_ex0.cc
 Simplest example using the arg library

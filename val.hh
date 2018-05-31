@@ -21,9 +21,10 @@
 
 // This header file provides additional Value classes:
 //
-//   SetValue:  value represents a choice from a set of names
-//   ListValue: a list of comma-separated values
-//   RelValue:  value of double that can be absolute or relative
+//   SetValue: int value represents a choice from a set of names
+//  TermValue: string value from a set of names
+//  ListValue: a list of comma-separated values
+//   RelValue: value of double that can be absolute or relative
 
 #pragma once
 #include "arg.hh"
@@ -32,7 +33,7 @@
 namespace arg {
 	// Extensions:
 
-	/// Set of names in strings, these are `int` values that map to names
+	/// `int` values represent choices from a set of names in strings
 	class SetValue :
 		public Value
 	{
@@ -69,7 +70,7 @@ namespace arg {
 		std::string get_help() const;
 	};
 
-	/// Set of terms in strings
+	/// `string` values from a set of terms
 	class TermValue :
 		public Value
 	{
@@ -98,7 +99,7 @@ namespace arg {
 		std::string get_help() const;
 	};
 
-	/// List of values seperated by comma or something
+	/// list of values seperated by comma or something
 	template <typename T>
 	class ListValue :
 		public Value

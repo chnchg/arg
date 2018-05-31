@@ -1,6 +1,6 @@
 /* arg.cc
  *
- * Copyright (C) 2010,2017 Chun-Chung Chen <cjj@u.washington.edu>
+ * Copyright (C) 2010,2018 Chun-Chung Chen <cjj@u.washington.edu>
  * 
  * This file is part of arg.
  * 
