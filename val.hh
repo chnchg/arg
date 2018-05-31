@@ -83,11 +83,11 @@ namespace arg {
 		std::vector<Element> term_list;
 	public:
 		TermValue(std::string & var); ///<make `string` a TermValue
-		void add_help(std::string const & title = "Available values:");
+		void add_help(std::string const & title = "Available values:"); ///<add a `help` term
 		void add(
 			std::string const & name, ///<the term
 			std::string const & help = "" ///<decription of the term
-		);
+		); ///<add a term
 
 		void set(std::string const & str) override;
 		std::string to_str() const override;
