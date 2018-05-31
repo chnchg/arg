@@ -29,7 +29,7 @@ using namespace std;
 
 Value::~Value() {}
 
-void Value::set(const std::string &) {}
+void Value::set(std::string const &) {}
 
 string Value::to_str() const
 {
@@ -345,7 +345,7 @@ void Parser::parse(int argc, char * argv[], bool ignore_unknown)
 	}
 }
 
-void Parser::set_header(const std::string & text)
+void Parser::set_header(std::string const & text)
 {
 	header_text = text;
 }
@@ -361,7 +361,7 @@ std::shared_ptr<Option> Parser::find(int key)
 	return nullptr;
 }
 
-std::shared_ptr<Option> Parser::find(const std::string & name)
+std::shared_ptr<Option> Parser::find(std::string const & name)
 {
 	for (auto j: opt_list) if (j->get_name() == name) return j;
 	return nullptr;
@@ -379,7 +379,7 @@ void Parser::remove(int key)
 	}), opt_list.end());
 }
 
-void Parser::remove(const std::string & name)
+void Parser::remove(std::string const & name)
 {
 	// erase help first (have to leave the extra help lines.)
 	help_list.erase(std::remove_if(help_list.begin(), help_list.end(), [&](HelpLine & l){

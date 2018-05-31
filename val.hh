@@ -32,7 +32,7 @@
 namespace arg {
 	// Extensions:
 
-	// Set of names in strings
+	/// Set of names in strings, these are `int` values that map to names
 	class SetValue :
 		public Value
 	{
@@ -47,15 +47,19 @@ namespace arg {
 		};
 		std::vector<Element> set_list;
 	public:
-		SetValue(int & var);
+		SetValue(int & var); ///<make a SetValue from `int &`
+		/// add a special `help` element to the set
 		void add_help(std::string const & title = "Available values:");
+		/// add a `help` element mapped with an `int` value to the set
 		void add_help(std::string const & title, int value);
+		/// add an element to the set
 		void add(std::string const & name, std::string const & help = "");
+		/// add an element mapped with an `int` value to the set
 		void add(std::string const & name, int value, std::string const & help = "");
 
-		void set(std::string const & str);
-		std::string to_str() const;
-		std::string get_type() const;
+		void set(std::string const & str) override;
+		std::string to_str() const override;
+		std::string get_type() const override;
 
 		// additional access to set
 		int get_value(std::string const & name) const;
@@ -65,7 +69,7 @@ namespace arg {
 		std::string get_help() const;
 	};
 
-	// Set of terms in strings
+	/// Set of terms in strings
 	class TermValue :
 		public Value
 	{
@@ -78,9 +82,12 @@ namespace arg {
 		};
 		std::vector<Element> term_list;
 	public:
-		TermValue(std::string & var);
+		TermValue(std::string & var); ///<make `string` a TermValue
 		void add_help(std::string const & title = "Available values:");
-		void add(std::string const & name, std::string const & help = "");
+		void add(
+			std::string const & name, ///<the term
+			std::string const & help = "" ///<decription of the term
+		);
 
 		void set(std::string const & str) override;
 		std::string to_str() const override;
@@ -91,7 +98,7 @@ namespace arg {
 		std::string get_help() const;
 	};
 
-	// List of values seperated by comma
+	/// List of values seperated by comma or something
 	template <typename T>
 	class ListValue :
 		public Value
@@ -99,13 +106,16 @@ namespace arg {
 		std::vector<T> & plist;
 		char sep;
 	public:
-		ListValue(std::vector<T> & list, char seperator = ',') :
+		/// make a list of value from `vector`
+		ListValue(
+			std::vector<T> & list, ///<a `vector` to stow the list values
+			char seperator = ',' ///<seperator
+		) :
 			plist(list),
 			sep(seperator)
-		{
-		}
+		{}
 
-		void set(std::string const & str)
+		void set(std::string const & str) override
 		{
 			plist.clear();
 			std::string::size_type n = 0;
@@ -120,7 +130,7 @@ namespace arg {
 			}
 		}
 
-		std::string to_str() const
+		std::string to_str() const override
 		{
 			std::ostringstream o;
 			std::string s;
@@ -131,20 +141,23 @@ namespace arg {
 			return o.str();
 		}
 
-		std::string get_type() const
+		std::string get_type() const override
 		{
 			return std::string("list(") + typeid(T).name() + ")";
 		}
 	};
 
-	// double that can be relative (if it begins with '+' sign)
+	/// double that can be relative (if it begins with '+' sign)
 	class RelValue :
 		public Value
 	{
 		double & v;
 		bool & rel;
 	public:
-		RelValue(double & var, bool & is_relative);
+		RelValue(
+			double & var, ///<actual variable to stow the value
+			bool & is_relative ///<is it relative?
+		); ///<a `double` value that can be relative
 		void set(std::string const & str);
 		std::string to_str() const;
 		std::string get_type() const;

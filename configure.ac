@@ -1,6 +1,6 @@
 # arg/configure.ac
 #
-AC_INIT([arg],[1.1],[cjj@u.washington.edu])
+AC_INIT([arg],[1.2],[cjj@u.washington.edu])
 AC_CONFIG_SRCDIR([arg.cc])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE

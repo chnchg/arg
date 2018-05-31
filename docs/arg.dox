@@ -1,0 +1,29 @@
+// -*- mode: c++; -*- vim: syntax=cpp
+/**
+
+\mainpage The arg Reference Manual
+## arg, a C++ command-line parser
+This C++ library faciliates the processing of command-line arguments through
+a `arg::Parser` object. After creation, the parser is informed of options that
+it will parse for and their disposition. The `argc` and `argv` from the
+signature of `main` function are then passed to the parser to activate the
+magic.
+
+\author Chun-Chung Chen <cjj@u.washington.edu>
+
+\namespace arg Base namespace for the library
+
+\file arg.hh header file for arg library
+
+\file val.hh header file providing additional Value classes 
+
+\example arg_ex0.cc
+Simplest example using the arg library
+
+\example arg_ex1.cc
+A more complex example with help text
+
+\example arg_ex2.cc
+An exmaple with sub-parser
+
+*/

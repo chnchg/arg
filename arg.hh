@@ -18,27 +18,26 @@
  * License along with arg.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
-///\file header file for arg library
+
 #pragma once
 #include <vector>
 #include <string>
 #include <sstream>
 #include <typeinfo>
 #include <memory>
-/// Base namespace for the library
 namespace arg {
 	/// proxy to values of command line options, need to know where to store the values
 	class Value
 	{
 	public:
 		virtual ~Value();
-		virtual void set(const std::string & str); ///<convert the str to value and put it in storage
+		virtual void set(std::string const & str); ///<convert the str to value and put it in storage
 		virtual std::string to_str() const; ///<convert the value to a string
 		virtual std::string get_type() const; ///<type name of the value
 	};
 
 	/// signature for callback functions
-	typedef bool (CallBack)(int, const std::string & , void *);
+	typedef bool (CallBack)(int, std::string const &, void *);
 
 	/// options to be parsed
 	class Option
@@ -64,28 +63,29 @@ namespace arg {
 		std::string help_var;
 		bool help_default; ///<whether to show default value of store
 	public:
+		/// command-line option with key and name
 		Option(
 			int key, ///< unique single character key for the option
-			const std::string & name ///<name for the option
+			std::string const & name ///<name for the option
 		);
 		~Option();
 
 		// option modifiers
 		template<typename T> Option & stow(T & t); ///<stow value to streamable variable
 		Option & store(std::shared_ptr<Value> ptr = 0); ///<store value to "* ptr", the Value will be released by the Option
-		Option & optional(const std::string & str = ""); ///<value is optional defaulting to "str"
+		Option & optional(std::string const & str = ""); ///<value is optional defaulting to "str"
 		Option & set(int * var, int value = - 1); ///<set "* var" to "value"
 		Option & set(bool & var, bool value = true); ///<set "* var" to "value"
 		Option & once(int init = 0); ///<can only be set once, with distinct value, "init"
 		Option & call(CallBack * func, void * data); ///<call function "* func" with "data" as extra argument
-		Option & help(const std::string & text, const std::string & var = ""); ///<help text
-		Option & help_word(const std::string & var); ///<help word
+		Option & help(std::string const & text, std::string const & var = ""); ///<help text
+		Option & help_word(std::string const & var); ///<help word
 		Option & show_default(bool do_show = true); ///<show default value in help
 
 		bool take_value();
 		bool need_value();
 		int get_key();
-		const std::string & get_name();
+		std::string const & get_name();
 
 		enum HelpFormat {
 			HF_REGULAR,
@@ -94,7 +94,7 @@ namespace arg {
 		std::string get_help(HelpFormat format = HF_REGULAR);
 
 		void process();
-		void process(const std::string & str);
+		void process(std::string const & str);
 	};
 
 	/// Positional arguments on command line
@@ -104,6 +104,7 @@ namespace arg {
 		std::shared_ptr<Value> store_ptr; ///<pointer to storage space
 		std::string help_text;
 	public:
+		/// positional argument with name
 		Argument(
 			std::string const & name ///<name for the argument
 		);
@@ -114,14 +115,14 @@ namespace arg {
 		Argument & store(std::shared_ptr<Value> ptr = 0); ///<store value to "* ptr", the Value will be released by the Argument
 		Argument & help(std::string const & text); ///<help text
 
-		const std::string & get_name();
+		std::string const & get_name();
 
 		enum HelpFormat {
 			HF_REGULAR,
 			HF_NODASH
 		};
 		std::string get_help();
-		void process(const std::string & str);
+		void process(std::string const & str);
 	};
 
 	/// The command-line parser
@@ -142,32 +143,33 @@ namespace arg {
 		std::vector<HelpLine> help_list;
 	public:
 		~Parser();
-		void add_help(const std::string & msg); ///<add additional help text between option helps
-		Option & add_opt(int key, const std::string & name = "", bool hide = false); ///<add an Option
-		Option & add_opt(const std::string & name, bool hide = false);
+		void add_help(std::string const & msg); ///<add additional help text between option helps
+		Option & add_opt(int key, std::string const & name = "", bool hide = false); ///<add an Option
+		Option & add_opt(std::string const & name, bool hide = false);
 		std::vector<std::string> & args();
 		void parse(int argc, char * argv[], bool ignore_unknown = false);
-		void set_header(const std::string & text);
-		const std::string & get_header() const;
+		void set_header(std::string const & text);
+		std::string const & get_header() const;
 
 		// find existing options
 		std::shared_ptr<Option> find(int key);
-		std::shared_ptr<Option> find(const std::string & name);
+		std::shared_ptr<Option> find(std::string const & name);
 
 		// removing options
 		void remove(int key);
-		void remove(const std::string & name);
+		void remove(std::string const & name);
 		void remove_all(); // remove all options
 
 		std::string get_help();
 		// default options
 		Option & add_opt_help();
-		Option & add_opt_version(const std::string & version);
+		Option & add_opt_version(std::string const & version);
 
 		// positional arguments
 		Argument & add_arg(std::string const & name);
 	};
 
+	/// A Parser that is a Value itself
 	class SubParser :
 		public Value,
 		public Parser
@@ -175,7 +177,7 @@ namespace arg {
 		char sep;
 	public:
 		SubParser();
-		void set(const std::string & str); // parse the str
+		void set(std::string const & str); // parse the str
 		std::string get_help();
 		void set_sep(char s); // set the separator to s from ','
 		// default options
@@ -190,7 +192,7 @@ namespace arg {
 		std::string msg;
 	public:
 		Error();
-		Error(const std::string & msg);
+		Error(std::string const & msg);
 		std::string get_msg();
 	};
 
@@ -200,22 +202,22 @@ namespace arg {
 	protected:
 		std::string opt;
 	public:
-		OptError(const std::string & opt);
-		OptError(const std::string & opt, const std::string & msg);
+		OptError(std::string const & opt);
+		OptError(std::string const & opt, std::string const & msg);
 	};
 
 	class ConvError : // conversion error
 		public Error
 	{
 	public:
-		ConvError(const std::string & str, const std::string & type);
+		ConvError(std::string const & str, std::string const & type);
 	};
 
 	class UnknError : // unknow option error
 		public Error
 	{
 	public:
-		UnknError(const std::string & opt);
+		UnknError(std::string const & opt);
 	};
 
 	class MissingError : // missing argument
@@ -238,7 +240,7 @@ namespace arg {
 		{
 		}
 
-		void set(const std::string & str)
+		void set(std::string const & str)
 		{
 			std::istringstream s(str);
 			T tmp;
