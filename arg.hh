@@ -115,14 +115,14 @@ namespace arg {
 		Argument & store(std::shared_ptr<Value> ptr = 0); ///<store value to "* ptr", the Value will be released by the Argument
 		Argument & help(std::string const & text); ///<help text
 
-		std::string const & get_name();
+		std::string const & get_name(); ///<get name of the argument
 
 		enum HelpFormat {
 			HF_REGULAR,
 			HF_NODASH
 		};
-		std::string get_help();
-		void process(std::string const & str);
+		std::string get_help(); ///<get help text
+		void process(std::string const & str); ///<process string data
 	};
 
 	/// The command-line parser
@@ -147,9 +147,14 @@ namespace arg {
 		Option & add_opt(int key, std::string const & name = "", bool hide = false); ///<add an Option
 		Option & add_opt(std::string const & name, bool hide = false);
 		std::vector<std::string> & args();
-		void parse(int argc, char * argv[], bool ignore_unknown = false);
-		void set_header(std::string const & text);
-		std::string const & get_header() const;
+		/// perform command-line parsing
+		void parse(
+			int argc, ///<count of command-line tokens
+			char * argv[], ///<c-string array of command-line tokens
+			bool ignore_unknown = false ///<whether to ignore unknown options
+		);
+		void set_header(std::string const & text); ///<set the header in help
+		std::string const & get_header() const; ///<get the header text of help
 
 		// find existing options
 		std::shared_ptr<Option> find(int key);
