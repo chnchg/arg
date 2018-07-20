@@ -277,6 +277,12 @@ Option & Parser::add_opt(const string & name, bool hide)
 	return add_opt(0, name, hide);
 }
 
+Option & Parser::get_opt(std::string const & name)
+{
+	for (auto & i: opt_list) if (i->get_name() == name) return * i;
+	return add_opt(0, name);
+}
+
 vector<string> & Parser::args()
 {
 	return arg_strs;

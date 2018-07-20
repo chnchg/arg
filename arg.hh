@@ -146,6 +146,7 @@ namespace arg {
 		void add_help(std::string const & msg); ///<add additional help text between option helps
 		Option & add_opt(int key, std::string const & name = "", bool hide = false); ///<add an Option
 		Option & add_opt(std::string const & name, bool hide = false);
+		Option & get_opt(std::string const & name);
 		std::vector<std::string> & args();
 		/// perform command-line parsing
 		void parse(
