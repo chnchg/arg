@@ -18,7 +18,6 @@
  * License along with arg.  If not, see <http://www.gnu.org/licenses/>.
  * 
  */
-
 #include "arg.hh"
 #include <iostream>
 #include <algorithm>
@@ -41,7 +40,7 @@ string Value::get_type() const
 	return "unknown";
 }
 
-Option::Option(int key, const string & name) :
+Option::Option(int key, string const & name) :
 	key(key),
 	name(name),
 	store_optional(false),
@@ -57,12 +56,12 @@ Option::~Option() {}
 
 Option & Option::store(std::shared_ptr<Value> ptr)
 {
-	if (! ptr) ptr = std::make_shared<Value>(); // null storage
+	if (!ptr) ptr = std::make_shared<Value>(); // null storage
 	store_ptr = ptr;
 	return * this;
 }
 
-Option & Option::optional(const string & str)
+Option & Option::optional(string const & str)
 {
 	store_optional = true;
 	store_str = str;
@@ -97,14 +96,14 @@ Option & Option::call(CallBack * func, void * data)
 	return * this;
 }
 
-Option & Option::help(const string & text, const string & var)
+Option & Option::help(string const & text, string const & var)
 {
 	help_text = text;
 	if (var.size()) help_var = var;
 	return * this;
 }
 
-Option & Option::help_word(const string & var)
+Option & Option::help_word(string const & var)
 {
 	help_var = var;
 	return * this;
@@ -131,7 +130,7 @@ int Option::get_key()
 	return key;
 }
 
-const string & Option::get_name()
+string const & Option::get_name()
 {
 	return name;
 }
@@ -183,38 +182,40 @@ string Option::get_help(HelpFormat format)
 void Option::process()
 {
 	if (store_ptr) {
-		if (! store_optional) throw OptError(name, "missing value");
-		store_ptr->set(store_str);
+		if (!store_optional) throw OptError(name, "missing value");
+		store_ptr->set(store_str); // use default value
 	}
-	if (set_bool) {
-		* set_bool = bool_value;
-	}
+	if (set_bool) *set_bool = bool_value;
 	if (set_var) {
-		if (set_once && set_init != * set_var) throw OptError(name, "can not re-set");
-		* set_var = set_value;
+		if (set_once && set_init != *set_var) throw OptError(name, "can not re-set");
+		*set_var = set_value;
 	}
-	if (call_func) {
-		if (! (* call_func)(key, "", call_data)) throw OptError(name, "callback error");
-	}
+	if (call_func) if (!(*call_func)(key, "", call_data)) throw OptError(name, "callback error");
 }
 
-void Option::process(const string & str)
+void Option::process(string const & str)
 {
-	if (! store_ptr) throw OptError(name, "unwanted value '" + str + "'");
-	store_ptr->set(str);
-	if (set_bool) {
-		* set_bool = bool_value;
+	bool caught = false;
+	if (store_ptr) {
+		try {
+			store_ptr->set(str);
+			caught = true;
+		}
+		catch (OptError e) {}
 	}
+	if (set_bool) *set_bool = bool_value;
 	if (set_var) {
-		if (set_once && set_init != * set_var) throw OptError(name, "can not re-set");
-		* set_var = set_value;
+		if (set_once && set_init != *set_var) throw OptError(name, "can not re-set");
+		*set_var = set_value;
 	}
 	if (call_func) {
-		if (! (* call_func)(key, str, call_data)) throw OptError(name, "callback error");
+		if (!(*call_func)(key, str, call_data)) throw OptError(name, "callback error");
+		else caught = true;
 	}
+	if (!caught) throw OptError(name, "unwanted value '" + str + "'");
 }
 
-Argument::Argument(const string & name) :
+Argument::Argument(string const & name) :
 	name(name)
 {}
 
@@ -226,13 +227,13 @@ Argument & Argument::store(std::shared_ptr<Value> ptr)
 	return * this;
 }
 
-Argument & Argument::help(const string & text)
+Argument & Argument::help(string const & text)
 {
 	help_text = text;
 	return * this;
 }
 
-const string & Argument::get_name()
+string const & Argument::get_name()
 {
 	return name;
 }
@@ -272,7 +273,7 @@ Option & Parser::add_opt(int key, string const & name, bool hide)
 	return * o;
 }
 
-Option & Parser::add_opt(const string & name, bool hide)
+Option & Parser::add_opt(string const & name, bool hide)
 {
 	return add_opt(0, name, hide);
 }
@@ -356,7 +357,7 @@ void Parser::set_header(std::string const & text)
 	header_text = text;
 }
 
-const string & Parser::get_header() const
+string const & Parser::get_header() const
 {
 	return header_text;
 }
@@ -435,7 +436,7 @@ string Parser::get_help()
 }
 
 namespace { // local callback functions
-	bool help_callback(int, const string &, void * data)
+	bool help_callback(int, string const &, void * data)
 	{
 		Parser * p = static_cast<Parser *>(data);
 		cout << p->get_header();
@@ -445,7 +446,7 @@ namespace { // local callback functions
 		exit(0);
 	}
 
-	bool version_callback(int, const string &, void * data)
+	bool version_callback(int, string const &, void * data)
 	{
 		string * s = static_cast<string *>(data);
 		cout << * s << '\n';
@@ -460,7 +461,7 @@ Option & Parser::add_opt_help()
 		.help("display this help list and exit");
 }
 
-Option & Parser::add_opt_version(const string & ver)
+Option & Parser::add_opt_version(string const & ver)
 {
 	version_info = ver;
 	return add_opt('V', "version")
@@ -479,7 +480,7 @@ SubParser::SubParser() :
 {
 }
 
-void SubParser::set(const string & str)
+void SubParser::set(string const & str)
 {
 	string name;
 	string value;
@@ -519,7 +520,7 @@ string SubParser::get_help()
 }
 
 namespace { // local callback functions
-	bool sub_help_callback(int, const string &, void * data)
+	bool sub_help_callback(int, string const &, void * data)
 	{
 		SubParser * p = static_cast<SubParser *>(data);
 		cout << '\n';

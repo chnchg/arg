@@ -1,7 +1,7 @@
 #include <arg.hh>
 #include <iostream>
 using namespace std;
-const string version = "1.0";
+string const version = "1.0";
 
 int main(int argc, char ** argv)
 {
